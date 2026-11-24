@@ -2,6 +2,8 @@
 
 A fast browser arcade game that tests your reaction time. Targets pop up around the screen and you hit them before their countdown ring closes. It gets faster the longer you last.
 
+**▶ Play it here: <https://avestas-dev.github.io/reflex-arcade-game/>**
+
 ## How to play
 
 | Target | What to do |
