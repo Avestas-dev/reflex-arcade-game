@@ -1,2 +1,4 @@
 .DS_Store
 .claude/
+reflex-arcade-esp/secrets.h
+__pycache__/
