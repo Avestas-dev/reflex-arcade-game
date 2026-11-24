@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Arduino Mega 2560 + ESP8266 – poradnik</title>
+<style>
+@page { size: A4; margin: 0; }
+:root{
+  --ink:#141a33; --muted:#5b6385; --line:#dfe3f0; --soft:#f4f6fc;
+  --navy:#0f1430; --cyan:#00b8d4; --mag:#d6339c; --gold:#f2a900; --green:#1e9e5a; --red:#e0384f; --violet:#6b5cff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:var(--ink);font-size:8.9pt;line-height:1.42;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always;padding:0 12mm 10mm}
+.page:last-child{page-break-after:auto}
+.top{height:13mm;margin:0 -12mm 5mm;padding:0 12mm;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;font-size:8pt;letter-spacing:.04em}
+.top b{background:linear-gradient(90deg,#3ef0ff,#ff5ed1);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:9.5pt;letter-spacing:.02em}
+.top .pg{display:flex;gap:4px}.top .pg i{width:18px;height:4px;border-radius:2px;background:#39406b}.top .pg i.on{background:#3ef0ff}
+h1{font-size:23pt;line-height:1.08;letter-spacing:-.02em;margin-bottom:2mm}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--cyan),var(--mag));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:9.6pt;color:var(--muted);margin-bottom:3mm;max-width:170mm}
+h2{font-size:12pt;margin:0 0 2mm;display:flex;align-items:center;gap:6px}
+h2 .n{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;background:var(--navy);color:#fff;font-size:8.5pt}
+h3{font-size:9.6pt;margin:0 0 1mm}
+p{margin-bottom:1.6mm}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5mm}
+.card{border:1px solid var(--line);border-radius:3mm;padding:3mm 3.4mm;background:#fff}
+.card.soft{background:var(--soft);border-color:#e7eaf5}
+.chip{display:inline-block;padding:0 5px;border-radius:4px;font-weight:700;font-size:7.8pt;color:#fff;background:var(--navy);margin-right:3px}
+.c-cyan{background:var(--cyan)}.c-mag{background:var(--mag)}.c-gold{background:var(--gold)}.c-green{background:var(--green)}.c-red{background:var(--red)}.c-violet{background:var(--violet)}.c-grey{background:#8a90b5}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.6mm 3mm;font-size:8.4pt}
+.kv span{color:var(--muted)}
+.call{border-radius:3mm;padding:2.6mm 3.4mm;margin:2.5mm 0;border-left:4px solid}
+.call.warn{background:#fff4f5;border-color:var(--red)}
+.call.tip{background:#effbf5;border-color:var(--green)}
+.call.info{background:#eefaff;border-color:var(--cyan)}
+.call.gold{background:#fff8e6;border-color:var(--gold)}
+.call h3{margin-bottom:.6mm}
+table{width:100%;border-collapse:collapse;font-size:8.3pt}
+th{text-align:left;font-size:7.4pt;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;padding:1.2mm 1.6mm;border-bottom:1.5px solid var(--ink)}
+td{padding:.8mm 1.6mm;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+code,.mono{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:7.9pt;background:#eef0f8;border-radius:3px;padding:0 3px}
+.foot{position:absolute;bottom:5mm;left:12mm;right:12mm;font-size:7pt;color:#9aa0bd;display:flex;justify-content:space-between}
+svg text{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif}
+ul{padding-left:4mm}li{margin-bottom:.8mm}
+.big{font-size:15pt;font-weight:800;letter-spacing:-.01em}
+.small{font-size:7.8pt;color:var(--muted)}
+.dip{display:inline-flex;gap:2px;vertical-align:middle}
+.dip i{width:9px;height:15px;border-radius:2px;background:#e9ecf5;border:1px solid #c9cee3;position:relative;display:inline-block}
+.dip i::after{content:"";position:absolute;left:1px;right:1px;height:6px;bottom:1px;border-radius:1px;background:#a8aecb}
+.dip i.on{background:#dff7ec;border-color:var(--green)}
+.dip i.on::after{top:1px;bottom:auto;background:var(--green)}
+.nums{display:inline-flex;gap:2px;font-size:6.5pt;color:var(--muted)}.nums span{width:9px;text-align:center}
+.step{display:flex;gap:2.5mm;align-items:flex-start;margin-bottom:1.6mm}
+.step b.s{flex:0 0 auto;width:16px;height:16px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-size:7.5pt}
+</style>
+</head>
+<body>
+
+<!-- ============================== PAGE 1 ============================== -->
+<section class="page">
+  <div class="top"><span><b>REFLEX ARCADE</b> &nbsp;·&nbsp; Poradnik: Arduino Mega 2560 + ESP8266</span><span class="pg"><i class="on"></i><i></i><i></i><i></i></span></div>
+
+  <h1>Twoja płytka <em>od środka</em></h1>
+  <p class="lead">Masz w ręku dwa komputery na jednej płytce: <b>Arduino Mega 2560</b>, które steruje przyciskami i światłami, oraz <b>ESP8266</b>, który obsługuje Wi-Fi. Do tego układ USB, który łączy je z komputerem. Ten poradnik tłumaczy, co jest czym, jak tego bezpiecznie używać i skąd brały się problemy, na które trafiliśmy.</p>
+
+  <svg viewBox="0 0 720 300" width="100%" style="display:block;margin-bottom:3mm">
+    <defs>
+      <linearGradient id="pcb" x1="0" x2="1"><stop offset="0" stop-color="#18203f"/><stop offset="1" stop-color="#101631"/></linearGradient>
+    </defs>
+    <rect x="40" y="30" width="640" height="240" rx="14" fill="url(#pcb)"/>
+    <!-- headers -->
+    <rect x="150" y="38" width="420" height="16" rx="3" fill="#2b3360"/>
+    <text x="360" y="50" text-anchor="middle" font-size="10" fill="#c9cff0">piny cyfrowe 0–13 · AREF · GND · SDA/SCL · Serial 14–21</text>
+    <rect x="590" y="64" width="80" height="196" rx="3" fill="#2b3360"/>
+    <text x="630" y="166" text-anchor="middle" font-size="10" fill="#c9cff0" transform="rotate(90 630 166)">piny cyfrowe 22–53</text>
+    <rect x="150" y="246" width="190" height="16" rx="3" fill="#2b3360"/>
+    <text x="245" y="258" text-anchor="middle" font-size="10" fill="#c9cff0">zasilanie: 3.3V · 5V · GND · VIN</text>
+    <rect x="350" y="246" width="220" height="16" rx="3" fill="#2b3360"/>
+    <text x="460" y="258" text-anchor="middle" font-size="10" fill="#c9cff0">wejścia analogowe A0–A15</text>
+    <!-- USB + DC -->
+    <rect x="24" y="74" width="52" height="40" rx="4" fill="#c3c9df"/><text x="50" y="98" text-anchor="middle" font-size="11" font-weight="700" fill="#141a33">USB</text>
+    <rect x="18" y="194" width="62" height="50" rx="5" fill="#2d2d33"/><text x="49" y="216" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">DC</text><text x="49" y="230" text-anchor="middle" font-size="9" fill="#ccc">7–16 V</text>
+    <!-- reset -->
+    <circle cx="104" cy="70" r="11" fill="#e0384f"/><text x="104" y="96" text-anchor="middle" font-size="9" fill="#fff">RESET</text>
+    <!-- LEDs -->
+    <g font-size="8.5" fill="#c9cff0"><circle cx="100" cy="132" r="5" fill="#3dff8a"/><text x="110" y="135">ON</text>
+      <circle cx="100" cy="148" r="5" fill="#ffd23e"/><text x="110" y="151">L (pin 13)</text>
+      <circle cx="100" cy="164" r="5" fill="#ff8a5b"/><text x="110" y="167">TX / RX</text></g>
+    <!-- CH340 -->
+    <rect x="160" y="150" width="62" height="40" rx="4" fill="#0b0f22" stroke="#00b8d4" stroke-width="2"/>
+    <text x="191" y="168" text-anchor="middle" font-size="10" font-weight="700" fill="#3ef0ff">CH340</text><text x="191" y="181" text-anchor="middle" font-size="8" fill="#9fb">USB ↔ serial</text>
+    <!-- ATmega -->
+    <rect x="300" y="72" width="104" height="104" rx="6" fill="#0b0f22" stroke="#d6339c" stroke-width="2.5"/>
+    <text x="352" y="118" text-anchor="middle" font-size="12" font-weight="800" fill="#ff5ed1">ATmega2560</text>
+    <text x="352" y="134" text-anchor="middle" font-size="9" fill="#d9c">mózg gry · 5 V</text>
+    <!-- slider -->
+    <rect x="240" y="80" width="40" height="24" rx="3" fill="#e9ecf5"/><rect x="243" y="83" width="16" height="18" rx="2" fill="#6b5cff"/>
+    <text x="260" y="118" text-anchor="middle" font-size="8.5" fill="#c9cff0">suwak RX/TX</text>
+    <!-- ESP -->
+    <rect x="440" y="72" width="120" height="74" rx="6" fill="#0b0f22" stroke="#00b8d4" stroke-width="2.5"/>
+    <text x="500" y="104" text-anchor="middle" font-size="12" font-weight="800" fill="#3ef0ff">ESP8266</text>
+    <text x="500" y="120" text-anchor="middle" font-size="9" fill="#9de">Wi-Fi · 3.3 V</text>
+    <path d="M454 138 h18 v-8 h10 v8 h10 v-8 h10 v8 h10 v-8 h10 v8 h18" stroke="#3ef0ff" stroke-width="1.6" fill="none" opacity=".7"/>
+    <!-- DIP -->
+    <rect x="300" y="196" width="128" height="34" rx="4" fill="#f2a900"/>
+    <g fill="#fff">
+      <rect x="306" y="201" width="12" height="24" rx="2"/><rect x="321" y="201" width="12" height="24" rx="2"/><rect x="336" y="201" width="12" height="24" rx="2"/><rect x="351" y="201" width="12" height="24" rx="2"/>
+      <rect x="366" y="201" width="12" height="24" rx="2"/><rect x="381" y="201" width="12" height="24" rx="2"/><rect x="396" y="201" width="12" height="24" rx="2"/><rect x="411" y="201" width="12" height="24" rx="2"/></g>
+    <text x="364" y="244" text-anchor="middle" font-size="9" fill="#ffd77a">przełączniki DIP 1–8</text>
+    <!-- MODE -->
+    <circle cx="470" cy="206" r="9" fill="#8a90b5"/><text x="470" y="230" text-anchor="middle" font-size="8.5" fill="#c9cff0">MODE (ESP)</text>
+    <!-- links -->
+    <g stroke="#6b5cff" stroke-width="1.6" stroke-dasharray="4 3" fill="none" opacity=".85">
+      <path d="M76 94 C120 94 140 160 160 168"/><path d="M222 170 C260 170 280 210 300 212"/><path d="M404 130 C420 130 430 120 440 112"/>
+    </g>
+  </svg>
+
+  <div class="grid3">
+    <div class="card">
+      <h3><span class="chip c-mag">MEGA</span>ATmega2560</h3>
+      <p>Główny mikrokontroler. Tu działa gra: czyta przyciski, steruje światłami i mierzy czas reakcji.</p>
+      <div class="kv"><span>Logika</span><b>5 V</b><span>Zegar</span><b>16 MHz</b><span>Pamięć programu</span><b>256 KB</b><span>RAM</span><b>8 KB</b><span>Piny</span><b>54 cyfrowe, 16 analog.</b></div>
+    </div>
+    <div class="card">
+      <h3><span class="chip c-cyan">Wi-Fi</span>ESP8266</h3>
+      <p>Osobny komputer z Wi-Fi. Wyświetla stronę gry i przekazuje polecenia do Megi przez port szeregowy.</p>
+      <div class="kv"><span>Logika</span><b>3.3 V (!)</b><span>Zegar</span><b>80 MHz</b><span>Pamięć</span><b>4 MB</b><span>Wi-Fi</span><b>tylko 2,4 GHz</b><span>Przycisk</span><b>MODE</b></div>
+    </div>
+    <div class="card">
+      <h3><span class="chip">USB</span>CH340</h3>
+      <p>Tłumacz USB ↔ port szeregowy. Przez niego komputer wgrywa programy i czyta komunikaty. Na Macu widać go jako <code>/dev/cu.usbserial-…</code>.</p>
+      <p class="small">Do którego układu trafia USB, decydują przełączniki DIP (strona 4).</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:3.5mm">
+    <div class="card soft">
+      <h2><span class="n">⚡</span>Zasilanie</h2>
+      <table>
+        <tr><th>Źródło</th><th>Napięcie</th><th>Uwagi</th></tr>
+        <tr><td><b>USB</b></td><td>5 V</td><td>Komputer, ładowarka lub powerbank. Najprostsze.</td></tr>
+        <tr><td><b>Gniazdo DC</b></td><td>7–16 V</td><td>Zasilacz. Płytka sama obniża napięcie do 5 V.</td></tr>
+        <tr><td><b>Pin VIN</b></td><td>7–12 V</td><td>Jak gniazdo DC, tylko przewodem.</td></tr>
+        <tr><td><b>Pin 5V / 3.3V</b></td><td>wyjście</td><td>Do zasilania małych modułów, nie do podłączania zasilacza.</td></tr>
+      </table>
+    </div>
+    <div class="card soft">
+      <h2><span class="n">●</span>Diody i przyciski na płytce</h2>
+      <table>
+        <tr><td><span class="chip c-green">ON</span></td><td>Płytka ma zasilanie.</td></tr>
+        <tr><td><span class="chip c-gold">L</span></td><td>Dioda podłączona na stałe do <b>pinu 13</b>. Mignie krótko po RESET, gdy bootloader jest na miejscu.</td></tr>
+        <tr><td><span class="chip c-red">TX/RX</span></td><td>Mrugają przy przesyłaniu danych przez USB.</td></tr>
+        <tr><td><span class="chip c-red">RESET</span></td><td>Restartuje Megę (program zaczyna od nowa).</td></tr>
+        <tr><td><span class="chip c-grey">MODE</span></td><td>Dotyczy tylko ESP8266. Przy grze go nie używasz.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="call info">
+    <h3>Jak płytka „rozmawia”</h3>
+    <p style="margin:0">Telefon <b>⇄ Wi-Fi ⇄</b> ESP8266 <b>⇄ port szeregowy (piny 14/15) ⇄</b> ATmega2560 <b>⇄</b> przyciski i światła. Komputer może podglądać Megę przez <b>USB ⇄ CH340 ⇄</b> piny 0/1. Gra działa na Megi, więc chwilowa przerwa w Wi-Fi jej nie psuje.</p>
+  </div>
+  <div class="foot"><span>Reflex Arcade · github.com/Avestas-dev/reflex-arcade-game</span><span>1 / 4</span></div>
+</section>
+
+<!-- ============================== PAGE 2 ============================== -->
+<section class="page">
+  <div class="top"><span><b>REFLEX ARCADE</b> &nbsp;·&nbsp; Poradnik: Arduino Mega 2560 + ESP8266</span><span class="pg"><i></i><i class="on"></i><i></i><i></i></span></div>
+
+  <h1>Mapa <em>pinów i złączy</em></h1>
+  <p class="lead">Pin to „nóżka”, którą program może odczytać (wejście) albo ustawić (wyjście). Większość pinów na Megi jest uniwersalna, ale niektóre mają dodatkowe zadania i warto je znać, zanim coś do nich podłączysz.</p>
+
+  <table style="margin-bottom:3mm">
+    <tr><th style="width:24%">Piny</th><th style="width:20%">Rodzaj</th><th>Do czego służą / na co uważać</th></tr>
+    <tr><td><span class="chip c-red">D0, D1</span></td><td>Serial (USB)</td><td>Połączone z USB. Przez nie idzie wgrywanie programu i podgląd. <b>Nie podłączaj tu niczego.</b></td></tr>
+    <tr><td><span class="chip c-violet">D2 – D13</span></td><td>cyfrowe + PWM</td><td>Uniwersalne, z PWM (np. ściemnianie diod). <b>D13 ma diodę „L”</b> (strona 3).</td></tr>
+    <tr><td><span class="chip c-red">D14, D15</span></td><td>Serial3</td><td>W Twoim projekcie to <b>linia do ESP8266</b> (TX3 = 14, RX3 = 15). Zostaw je w spokoju.</td></tr>
+    <tr><td><span class="chip c-gold">D16 – D19</span></td><td>Serial2, Serial1</td><td>Wolne porty szeregowe, np. na moduł GPS, Bluetooth lub drugi mikrokontroler.</td></tr>
+    <tr><td><span class="chip c-gold">D20, D21</span></td><td>I2C (SDA, SCL)</td><td>Magistrala do wyświetlaczy i czujników (wiele urządzeń na 2 przewodach). Zostaw wolne np. pod ekran LCD.</td></tr>
+    <tr><td><span class="chip c-green">D22 – D49</span></td><td>cyfrowe</td><td>Najspokojniejsze piny, bez dodatkowych funkcji. <b>Tu są przyciski gry (22–37) i światła (38–49).</b></td></tr>
+    <tr><td><span class="chip c-gold">D50 – D53</span></td><td>SPI</td><td>Szybka magistrala (karty SD, ekrany). Jako zwykłe piny działają: <b>w grze to światła gracza 2.</b></td></tr>
+    <tr><td><span class="chip c-cyan">A0 – A15</span></td><td>analogowe</td><td>Mierzą napięcie 0–5 V jako liczbę 0–1023 (potencjometr, czujnik światła). Mogą działać jako cyfrowe 54–69.</td></tr>
+    <tr><td><span class="chip">5V, 3.3V</span></td><td>zasilanie (wyjście)</td><td>Do zasilania modułów. Nie łącz ich z GND: to zwarcie.</td></tr>
+    <tr><td><span class="chip">GND</span></td><td>masa</td><td>Wspólne „zero”. Każdy przycisk i każda dioda wraca do GND. Wszystkie piny GND są połączone ze sobą.</td></tr>
+    <tr><td><span class="chip c-grey">VIN, AREF, IOREF, RESET</span></td><td>specjalne</td><td>VIN: wejście zasilacza 7–12 V. AREF: odniesienie dla wejść analogowych. IOREF: informuje nakładki o 5 V. RESET: zwarty z GND restartuje Megę.</td></tr>
+  </table>
+
+  <div class="grid2">
+    <div>
+      <div class="call warn">
+        <h3>Piny, których unikaj w swoim projekcie</h3>
+        <ul>
+          <li><b>0 i 1</b>: USB. Coś podłączonego tutaj blokuje wgrywanie programu.</li>
+          <li><b>14 i 15</b>: komunikacja z ESP8266.</li>
+          <li><b>13 jako wejście</b>: dioda „L” zakłóca odczyt (strona 3). Jako wyjście, np. do diody, działa dobrze.</li>
+        </ul>
+      </div>
+      <div class="call tip">
+        <h3>Piny z przerwaniami: 2, 3, 18, 19, 20, 21</h3>
+        <p style="margin:0">Natychmiast „wołają” program przy zmianie stanu: przydatne przy enkoderach i bardzo szybkich impulsach. Przyciskom gry niepotrzebne, bo program sprawdza je tysiące razy na sekundę.</p>
+      </div>
+    </div>
+    <div class="card soft">
+      <h2><span class="n">#</span>Liczby, które warto pamiętać</h2>
+      <table>
+        <tr><td style="width:46%">Napięcie pinów Megi</td><td><b>0 V lub 5 V</b></td></tr>
+        <tr><td>Odczyt HIGH</td><td>od <b>ok. 3 V</b></td></tr>
+        <tr><td>Odczyt LOW</td><td>do <b>ok. 1,5 V</b></td></tr>
+        <tr><td>1,5–3 V</td><td><b>szara strefa</b>, wynik niepewny</td></tr>
+        <tr><td>Prąd z 1 pinu</td><td><b>20 mA</b> (absolutne max 40 mA)</td></tr>
+        <tr><td>Wszystkie piny razem</td><td><b>ok. 200 mA</b></td></tr>
+        <tr><td>Wbudowany pull-up</td><td><b>20–50 kΩ</b> (słaby)</td></tr>
+        <tr><td>Piny ESP8266</td><td><b>3,3 V</b>, 5 V je uszkodzi</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:3mm">
+    <h2><span class="n">Aa</span>Mały słowniczek</h2>
+    <div class="grid2" style="gap:1.5mm 6mm;font-size:8.3pt">
+      <div><b>GPIO</b>: pin ogólnego przeznaczenia, wejście albo wyjście.</div>
+      <div><b>PWM</b>: szybkie włączanie i wyłączanie, które daje „średnie” napięcie, np. do ściemniania.</div>
+      <div><b>Serial / UART</b>: przesyłanie tekstu dwoma przewodami (TX nadaje, RX odbiera).</div>
+      <div><b>I2C, SPI</b>: magistrale do łączenia modułów, np. ekranów i czujników.</div>
+      <div><b>Bootloader</b>: mały program w Megi, który przyjmuje nowy program z USB.</div>
+      <div><b>Firmware / szkic</b>: Twój program wgrany na płytkę (plik <code>.ino</code>).</div>
+    </div>
+  </div>
+  <div class="foot"><span>Reflex Arcade · Poradnik</span><span>2 / 4</span></div>
+</section>
+
+<!-- ============================== PAGE 3 ============================== -->
+<section class="page">
+  <div class="top"><span><b>REFLEX ARCADE</b> &nbsp;·&nbsp; Poradnik: Arduino Mega 2560 + ESP8266</span><span class="pg"><i></i><i></i><i class="on"></i><i></i></span></div>
+
+  <h1>Wejścia, wyjścia i <em>pull-up</em></h1>
+  <p class="lead">Każdy pin ustawiasz w programie na jeden z trzech trybów. Od tego zależy, czy pin „słucha”, czy „mówi”, i jak trzeba do niego podłączyć przycisk albo diodę.</p>
+
+  <div class="grid3" style="margin-bottom:3mm">
+    <div class="card"><h3><span class="chip c-grey">INPUT</span></h3><p style="margin:0">Pin tylko słucha. Bez niczego podłączonego <b>„pływa”</b>: łapie zakłócenia i losowo pokazuje HIGH albo LOW. Wymaga zewnętrznego rezystora.</p></div>
+    <div class="card" style="border-color:var(--green)"><h3><span class="chip c-green">INPUT_PULLUP</span> polecany</h3><p style="margin:0">Pin słucha, a w środku włącza się rezystor do 5 V. Domyślnie jest <b>HIGH</b>, a przycisk do GND daje <b>LOW</b>. Bez dodatkowych części.</p></div>
+    <div class="card"><h3><span class="chip c-violet">OUTPUT</span></h3><p style="margin:0">Pin mówi: daje 5 V (HIGH) albo 0 V (LOW). Do diod, buzzera i sterowania modułami. Uważaj na prąd (niżej).</p></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><span class="n">1</span>Jak działa pull-up (przycisk)</h2>
+      <svg viewBox="0 0 330 150" width="100%">
+        <g font-size="11" fill="#141a33">
+          <text x="10" y="18" font-weight="700" fill="#d6339c">5 V</text>
+          <line x1="40" y1="14" x2="120" y2="14" stroke="#d6339c" stroke-width="2"/>
+          <line x1="120" y1="14" x2="120" y2="30" stroke="#141a33" stroke-width="2"/>
+          <rect x="110" y="30" width="20" height="40" rx="3" fill="#fff" stroke="#141a33" stroke-width="2"/>
+          <text x="138" y="54" font-size="10">rezystor w środku</text><text x="138" y="66" font-size="9" fill="#5b6385">20–50 kΩ</text>
+          <line x1="120" y1="70" x2="120" y2="90" stroke="#141a33" stroke-width="2"/>
+          <circle cx="120" cy="90" r="4" fill="#00b8d4"/>
+          <line x1="120" y1="90" x2="40" y2="90" stroke="#00b8d4" stroke-width="2"/>
+          <text x="6" y="94" font-weight="700" fill="#00b8d4">PIN</text>
+          <line x1="120" y1="90" x2="120" y2="104" stroke="#141a33" stroke-width="2"/>
+          <line x1="120" y1="104" x2="140" y2="96" stroke="#141a33" stroke-width="2.5"/>
+          <circle cx="120" cy="104" r="2.5"/><circle cx="120" cy="120" r="2.5"/>
+          <text x="148" y="108" font-size="10">przycisk</text>
+          <line x1="120" y1="120" x2="120" y2="134" stroke="#141a33" stroke-width="2"/>
+          <line x1="100" y1="134" x2="140" y2="134" stroke="#141a33" stroke-width="2.5"/><line x1="108" y1="139" x2="132" y2="139" stroke="#141a33" stroke-width="2"/><line x1="115" y1="144" x2="125" y2="144" stroke="#141a33" stroke-width="2"/>
+          <text x="148" y="140" font-weight="700">GND</text>
+          <rect x="222" y="70" width="104" height="26" rx="5" fill="#effbf5"/><text x="274" y="87" text-anchor="middle" font-size="10" fill="#1e9e5a" font-weight="700">puszczony → HIGH</text>
+          <rect x="222" y="104" width="104" height="26" rx="5" fill="#fff4f5"/><text x="274" y="121" text-anchor="middle" font-size="10" fill="#e0384f" font-weight="700">wciśnięty → LOW</text>
+        </g>
+      </svg>
+      <p>Rezystor delikatnie „ciągnie” pin do 5 V. Wciśnięty przycisk łączy pin z GND mocniej niż słaby rezystor, więc pin spada do 0 V. Logika jest więc <b>odwrócona</b>: <code>LOW</code> znaczy wciśnięty.</p>
+      <p class="small" style="margin:0"><b>Pull-down</b> to odwrotność: rezystor do GND, przycisk do 5 V. Mega nie ma wbudowanego pull-down (trzeba zewnętrznego 10 kΩ), dlatego używamy pull-upu.</p>
+    </div>
+
+    <div class="card" style="border-color:var(--gold)">
+      <h2><span class="n">13</span>Dlaczego D13 ciągle dawał LOW</h2>
+      <svg viewBox="0 0 330 150" width="100%">
+        <g font-size="11" fill="#141a33">
+          <text x="10" y="18" font-weight="700" fill="#d6339c">5 V</text>
+          <line x1="40" y1="14" x2="80" y2="14" stroke="#d6339c" stroke-width="2"/>
+          <line x1="80" y1="14" x2="80" y2="30" stroke="#141a33" stroke-width="2"/>
+          <rect x="70" y="30" width="20" height="40" rx="3" fill="#fff" stroke="#141a33" stroke-width="2"/>
+          <text x="20" y="54" font-size="9" fill="#5b6385">pull-up</text><text x="20" y="66" font-size="9" fill="#5b6385">~35 kΩ</text>
+          <line x1="80" y1="70" x2="80" y2="92" stroke="#141a33" stroke-width="2"/>
+          <circle cx="80" cy="92" r="4" fill="#00b8d4"/><text x="30" y="96" font-weight="700" fill="#00b8d4">D13</text>
+          <line x1="80" y1="92" x2="190" y2="92" stroke="#141a33" stroke-width="2"/>
+          <rect x="190" y="82" width="34" height="20" rx="3" fill="#fff" stroke="#141a33" stroke-width="2"/><text x="207" y="116" text-anchor="middle" font-size="9" fill="#5b6385">1 kΩ</text>
+          <line x1="224" y1="92" x2="246" y2="92" stroke="#141a33" stroke-width="2"/>
+          <polygon points="246,80 246,104 268,92" fill="#ffd23e" stroke="#141a33" stroke-width="1.5"/><line x1="268" y1="80" x2="268" y2="104" stroke="#141a33" stroke-width="2"/>
+          <text x="257" y="74" text-anchor="middle" font-size="9" font-weight="700">LED „L”</text>
+          <line x1="268" y1="92" x2="300" y2="92" stroke="#141a33" stroke-width="2"/><line x1="300" y1="92" x2="300" y2="124" stroke="#141a33" stroke-width="2"/>
+          <line x1="286" y1="124" x2="314" y2="124" stroke="#141a33" stroke-width="2.5"/><text x="300" y="140" text-anchor="middle" font-weight="700">GND</text>
+          <rect x="90" y="118" width="150" height="26" rx="5" fill="#fff8e6"/><text x="165" y="135" text-anchor="middle" font-size="10" font-weight="700" fill="#b07a00">na pinie zostaje ~1,7 V</text>
+        </g>
+      </svg>
+      <p>Dioda „L” z rezystorem jest na płytce <b>na stałe połączona z D13 do GND</b>. Słaby pull-up nie „przeciągnie” jej do 5 V: płynie przez nią prąd i na pinie zostaje ok. 1,7 V. To <b>szara strefa</b> (poniżej 3 V), którą Mega czyta jako <b>LOW</b>, nawet gdy nic nie jest podłączone.</p>
+      <p style="margin:0"><b>Rozwiązanie:</b> przyciski na innym pinie (test był na D2, w grze to 22–37). D13 świetnie działa jako <b>wyjście</b>.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:3mm">
+    <div class="card">
+      <h2><span class="n">2</span>Dioda LED na wyjściu</h2>
+      <p>Pin → <b>rezystor</b> → dłuższa nóżka diody (+) → krótsza nóżka (−) → GND. Rezystor jest obowiązkowy: ogranicza prąd.</p>
+      <div class="call gold" style="margin:1.5mm 0">
+        <p style="margin:0"><b>R = (5 V − napięcie diody) ÷ prąd</b><br>Czerwona dioda: (5 − 2) ÷ 0,015 A = 200 Ω → weź <b>220 Ω</b>.<br>Niebieska lub biała (~3 V): 133 Ω → weź 150–220 Ω.</p>
+      </div>
+      <p class="small" style="margin:0">Większy rezystor = słabsze światło, ale bezpieczniejszy pin.</p>
+    </div>
+    <div class="card">
+      <h2><span class="n">3</span>Gdy potrzebujesz więcej prądu</h2>
+      <p>Pin daje tylko <b>20 mA</b>. Silnik, przekaźnik, taśma LED albo podświetlane przyciski arcade 12 V potrzebują pośrednika:</p>
+      <ul>
+        <li><b>Tranzystor</b> (np. BC547 + rezystor 1 kΩ do bazy): jeden odbiornik do ~100 mA.</li>
+        <li><b>ULN2803</b>: 8 wyjść naraz, do 500 mA na kanał i do 50 V. Idealny do 8 lampek 12 V.</li>
+        <li><b>Moduł przekaźnika</b>: do urządzeń sieciowych. Często włącza się stanem LOW: wtedy ustaw w kodzie <code>LED_ACTIVE_HIGH 0</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:3mm">
+    <div class="call warn" style="margin:0">
+      <h3>Złote zasady: tego nie rób</h3>
+      <ul style="margin:0">
+        <li>Nie łącz pinu <b>OUTPUT HIGH</b> (np. D3 z testu) bezpośrednio z GND: to zwarcie, może spalić pin.</li>
+        <li>Nie podawaj na żaden pin więcej niż 5 V (ani napięcia ujemnego).</li>
+        <li>Nie łącz 5V z GND. Przewody przekładaj bez zasilania.</li>
+      </ul>
+    </div>
+    <div class="call tip" style="margin:0">
+      <h3>Drgania styków (debounce)</h3>
+      <p style="margin:0">Wciśnięty przycisk przez kilka milisekund „skacze”, a program widziałby kilka wciśnięć. Gra uznaje zmianę dopiero, gdy stan jest stabilny przez <b>15 ms</b>, a czas reakcji liczy od pierwszego zetknięcia styków.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Reflex Arcade · Poradnik</span><span>3 / 4</span></div>
+</section>
+
+<!-- ============================== PAGE 4 ============================== -->
+<section class="page">
+  <div class="top"><span><b>REFLEX ARCADE</b> &nbsp;·&nbsp; Poradnik: Arduino Mega 2560 + ESP8266</span><span class="pg"><i></i><i></i><i></i><i class="on"></i></span></div>
+
+  <h1>Przełączniki DIP i <em>Twój projekt</em></h1>
+  <p class="lead">Jeden układ USB, dwa komputery: przełączniki DIP decydują, kto jest z kim połączony. To najczęstsze źródło problemów: zła pozycja albo przełącznik wciśnięty do połowy.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><span class="n">⇄</span>Co łączy który przełącznik</h2>
+      <table style="margin-bottom:2mm">
+        <tr><td style="width:22%"><b>1, 2</b></td><td>Mega ↔ ESP8266 (po jednym na kierunek)</td></tr>
+        <tr><td><b>3, 4</b></td><td>USB ↔ Mega</td></tr>
+        <tr><td><b>5, 6</b></td><td>USB ↔ ESP8266</td></tr>
+        <tr><td><b>7</b></td><td>ESP czeka na nowy program (GPIO0 do GND)</td></tr>
+        <tr><td><b>8</b></td><td>nieużywany, zawsze OFF</td></tr>
+      </table>
+      <table>
+        <tr><th>Tryb</th><th>Ustawienie (zielony = ON)</th></tr>
+        <tr><td><b>Wgrywanie na Megę</b></td><td><span class="dip"><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span> 3, 4</td></tr>
+        <tr><td><b>Wgrywanie na ESP</b></td><td><span class="dip"><i></i><i></i><i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> 5, 6, 7</td></tr>
+        <tr><td><b>Gra + podgląd USB</b></td><td><span class="dip"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span> 1, 2, 3, 4</td></tr>
+        <tr><td><b>Gra bez komputera</b></td><td><span class="dip"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></span> 1, 2</td></tr>
+        <tr><td></td><td><span class="nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></span></td></tr>
+      </table>
+      <p class="small" style="margin-top:1.5mm"><b>Suwak RX/TX:</b> do gry ustaw na <b>RXD3/TXD3</b> (ESP rozmawia z Megą przez Serial3). <b>Przełączniki zmieniaj przy odłączonym USB</b> i dociskaj do końca, np. wykałaczką.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">?</span>Komunikat → co zrobić</h2>
+      <table>
+        <tr><th>Objaw</th><th>Przyczyna i rozwiązanie</th></tr>
+        <tr><td><code>stk500v2_getsync() failed</code></td><td>USB nie trafia do Megi: włącz <b>3 i 4</b>. Zamknij też monitor portu, jeśli jest otwarty.</td></tr>
+        <tr><td><code>Failed to connect to ESP8266</code></td><td>Płytka nie jest w trybie ESP: <b>5, 6, 7 ON</b>, a 1–4 OFF.</td></tr>
+        <tr><td><code>boot mode:(1,6)</code></td><td>ESP czeka na program, bo <b>7 jest na ON</b>. Do gry przestaw 5, 6, 7 na OFF.</td></tr>
+        <tr><td>Strona działa, ale Start nic nie robi</td><td>Jeden z przełączników <b>1 lub 2</b> nie jest dociśnięty, albo suwak stoi na RXD0.</td></tr>
+        <tr><td>Wejście ciągle LOW</td><td>To pin 13 (dioda „L”) albo zwarcie do GND. Użyj innego pinu.</td></tr>
+        <tr><td>Wejście skacze losowo</td><td>Pin „pływa”: ustaw <code>INPUT_PULLUP</code>.</td></tr>
+        <tr><td>Płytka nie w sieci</td><td>Zła nazwa sieci (wielkość liter!) albo sieć 5 GHz. Płytka po 15 s włączy sieć <b>ArcadeGame</b>.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:3.5mm">
+    <div class="card" style="border-color:var(--cyan)">
+      <h2><span class="n">🎮</span>Reflex Arcade: podłączenie</h2>
+      <table>
+        <tr><th></th><th>Przyciski #1–#8</th><th>Światła #1–#8</th></tr>
+        <tr><td><b style="color:var(--cyan)">Gracz 1</b></td><td>D22 – D29</td><td>D38 – D45</td></tr>
+        <tr><td><b style="color:var(--mag)">Gracz 2</b></td><td>D30 – D37</td><td>D46 – D53</td></tr>
+      </table>
+      <div class="step" style="margin-top:2mm"><b class="s">1</b><span><b>Przycisk:</b> jedna nóżka do pinu, druga do GND (pull-up jest w środku).</span></div>
+      <div class="step"><b class="s">2</b><span><b>Światło:</b> pin → 220 Ω → LED → GND, albo przez ULN2803 przy lampkach 12 V.</span></div>
+      <div class="step"><b class="s">3</b><span><b>Sprawdź:</b> zakładka <b>Diagnostyka</b> pokazuje piny, licznik wciśnięć i pozwala zapalić każde światło.</span></div>
+      <p class="small" style="margin:0">Masz tylko 8 świateł w sumie? Ustaw w kodzie <code>SHARED_LIGHTS 1</code>. Wtedy światło N oznacza przycisk N u obu graczy.</p>
+    </div>
+    <div class="card" style="border-color:var(--mag)">
+      <h2><span class="n">📶</span>Sieć: gdzie wejść na grę</h2>
+      <table>
+        <tr><td style="width:40%"><b>W domowej sieci</b></td><td><span class="mono">http://arcadegame.local</span><br><span class="small">lub adres IP z zakładki Wi-Fi</span></td></tr>
+        <tr><td><b>Nowe miejsce, brak sieci</b></td><td>Połącz telefon z siecią <b>ArcadeGame</b> (hasło <span class="mono">arcadegame</span>) i otwórz <span class="mono">http://arcadegame</span></td></tr>
+        <tr><td><b>Sieć płytki na żądanie</b></td><td>Zakładka Wi-Fi → „Zawsze włączona”, albo <b>przytrzymaj przycisk #1 gracza 1 przez 5 s</b></td></tr>
+        <tr><td><b>Zmiana sieci</b></td><td>Zakładka Wi-Fi → Szukaj sieci → hasło → Zapisz i połącz</td></tr>
+      </table>
+      <p class="small" style="margin-top:1.5mm">ESP8266 widzi tylko sieci <b>2,4 GHz</b>. Adres <code>.local</code> może nie działać na części Androidów, więc wtedy użyj IP.</p>
+    </div>
+  </div>
+
+  <div class="call info" style="margin-top:3.5mm">
+    <h3>Ściąga: wgranie nowej wersji programu</h3>
+    <p style="margin:0"><b>Mega:</b> DIP 3, 4 (albo 1–4) → <code>arduino-cli upload --fqbn arduino:avr:mega reflex-arcade-mega</code>.
+    <b>ESP8266:</b> odłącz USB → DIP 5, 6, 7 → podłącz → <code>upload --fqbn esp8266:esp8266:generic:ResetMethod=nodemcu reflex-arcade-esp</code> → odłącz USB → DIP 1–4 → podłącz. Pełne komendy są w README projektu.</p>
+  </div>
+  <div class="foot"><span>Reflex Arcade · github.com/Avestas-dev/reflex-arcade-game</span><span>4 / 4</span></div>
+</section>
+
+</body>
+</html>
