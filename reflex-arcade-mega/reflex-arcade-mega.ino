@@ -19,6 +19,11 @@
     ALL <0|1>                  all lights off/on (enters DIAG)
     RESET                      clear diagnostic press counters
     IP <address>               the ESP8266 reports its IP address
+    WIFI <status>              the ESP8266 reports its Wi-Fi status (3 = connected)
+    NET...                     (USB only) Wi-Fi settings, passed on to the ESP8266
+
+  Hold player 1 button #1 for 5 s while no game runs: the ESP8266 switches on
+  its "ArcadeGame" hotspot (all lights blink to confirm).
 
   Messages sent (one JSON object per line):
     {"t":"pins","shared":0,"btn":[[22,...],[30,...]],"led":[[38,...],[46,...]]}
@@ -68,6 +73,7 @@ const uint16_t RESULT_BLINK_MS = 3000;
 const uint16_t STATE_EVERY_MS = 500;
 const uint8_t STATE_MIN_GAP_MS = 80;
 const uint8_t MAX_TARGETS = 4;
+const uint16_t HOTSPOT_HOLD_MS = 5000;
 
 // ======================================================================
 // Non-blocking serial output (keeps button timing exact while sending)
@@ -137,6 +143,9 @@ uint32_t espBytes = 0;        // bytes received from the ESP8266, to check the l
 
 bool dirty = true;
 uint32_t lastStateAt = 0;
+
+bool hotspotReqSent = false;
+uint32_t hotspotFlashUntil = 0;
 
 // ======================================================================
 // Helpers
@@ -303,6 +312,22 @@ void scanKeys(uint32_t now) {
   }
 }
 
+// Holding player 1 button #1 for 5 s while no game runs asks the ESP8266 to
+// switch on its "ArcadeGame" hotspot. All lights blink to confirm.
+void checkHotspotHold(uint32_t now) {
+  const Key &k = keys[0][0];
+  if (!k.down) {
+    hotspotReqSent = false;
+    return;
+  }
+  if (hotspotReqSent || (phase != IDLE && phase != OVER)) return;
+  if (now - k.changedAt >= HOTSPOT_HOLD_MS) {
+    hotspotReqSent = true;
+    sendLine("{\"t\":\"apreq\"}");
+    hotspotFlashUntil = now + 1500;
+  }
+}
+
 uint8_t pressedMask(uint8_t p) {
   uint8_t m = 0;
   for (uint8_t i = 0; i < KEYS; i++) if (keys[p][i].down) m |= bitOf(i);
@@ -315,6 +340,7 @@ void updateLights(uint32_t now) {
 
   switch (phase) {
     case IDLE:
+      if ((int32_t)(hotspotFlashUntil - now) > 0 && (now / 150) % 2 == 0) o[0] = o[1] = 0xFF;
       break;
     case COUNTDOWN: {
       // Blink once per second, and light fewer lamps each second: 8, 5, 2.
@@ -487,11 +513,11 @@ void handleLine(char *line) {
     char *s = strtok(NULL, " ");
     if (!s) return;
     wifiStatus = atoi(s);
-    if (wifiStatus != 3) ipAddr[0] = 0;
     dirty = true;
   } else if (!strcmp(cmd, "IP")) {
     char *a = strtok(NULL, " ");
     if (!a) return;
+    if (a[0] == '-') a[0] = 0;   // no address yet
     strncpy(ipAddr, a, sizeof(ipAddr) - 1);
     ipAddr[sizeof(ipAddr) - 1] = 0;
     dirty = true;
@@ -499,25 +525,30 @@ void handleLine(char *line) {
   // Anything else (e.g. ESP8266 boot noise) is ignored.
 }
 
+// Reads lines from one port.
+//  - USB port: lines starting with NET are passed on to the ESP8266 (Wi-Fi settings).
+//  - ESP port: JSON lines from the ESP8266 (network status) are passed on to USB.
+template <uint16_t SIZE>
 struct LineReader {
-  char buf[96];
-  uint8_t len = 0;
+  char buf[SIZE];
+  uint16_t len = 0;
   bool overflow = false;
-
   uint32_t bytes = 0;
 
-  void poll(HardwareSerial &port) {
+  void poll(HardwareSerial &port, bool fromUsb) {
     while (port.available()) {
       char c = port.read();
       bytes++;
       if (c == '\n' || c == '\r') {
         if (len && !overflow) {
           buf[len] = 0;
-          handleLine(buf);
+          if (fromUsb && !strncmp(buf, "NET", 3)) espTx.push(buf, len);
+          else if (!fromUsb && buf[0] == '{') usbTx.push(buf, len);
+          else handleLine(buf);
         }
         len = 0;
         overflow = false;
-      } else if (len < sizeof(buf) - 1) {
+      } else if (len < SIZE - 1) {
         buf[len++] = c;
       } else {
         overflow = true;
@@ -526,7 +557,8 @@ struct LineReader {
   }
 };
 
-LineReader usbRx, espRx;
+LineReader<160> usbRx;
+LineReader<420> espRx;
 
 // ======================================================================
 // Arduino entry points
@@ -551,12 +583,11 @@ void setup() {
 void loop() {
   uint32_t now = millis();
 
-  usbRx.poll(Serial);
-  espRx.poll(ESP_SERIAL);
-  if (espRx.bytes != espBytes) {
-    espBytes = espRx.bytes;
-  }
+  usbRx.poll(Serial, true);
+  espRx.poll(ESP_SERIAL, false);
+  espBytes = espRx.bytes;
   scanKeys(now);
+  checkHotspotHold(now);
 
   if (phase == COUNTDOWN && now - phaseAt >= COUNTDOWN_MS) beginPlay(now);
   if (phase == PLAY && (int32_t)(now - gameEndAt) >= 0) endGame(now);

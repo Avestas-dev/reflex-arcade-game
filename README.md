@@ -15,7 +15,18 @@ Zapalają się przyciski, a gracz ma jak najszybciej wcisnąć podświetlony. Po
 
 Strona pokazuje na żywo czas, punkty, trafienia, pudła, średni i najlepszy czas reakcji oraz zapalone światła.
 
-**Diagnostyka:** wybierasz przycisk, włączasz, wyłączasz albo migasz jego światłem, widzisz na żywo, czy jest wciśnięty, i sprawdzasz licznik wciśnięć.
+**Diagnostyka:** wybierasz przycisk, włączasz, wyłączasz albo migasz jego światłem, widzisz na żywo, czy jest wciśnięty, i sprawdzasz licznik wciśnięć. Przy każdym przycisku widać pin przycisku i pin jego światła.
+
+## Gdzie otworzyć grę (działa w każdym miejscu)
+
+| Sytuacja | Co zrobić |
+|---|---|
+| Płytka jest w Twojej sieci Wi-Fi | Otwórz **http://arcadegame.local**, a jeśli nie działa (część telefonów z Androidem), adres IP z zakładki Wi-Fi. |
+| Płytka nie znalazła swojej sieci (np. w nowym miejscu) | Po 15 s sama włącza sieć **ArcadeGame** (hasło `arcadegame`). Połącz z nią telefon. Strona zwykle otworzy się sama, a jeśli nie, wpisz **http://arcadegame** albo http://192.168.4.1. |
+| Chcesz sieć płytki na żądanie | Na stronie: zakładka **Wi-Fi** → „Zawsze włączona”. Albo przytrzymaj **przycisk #1 gracza 1 przez 5 s**, gdy nie trwa gra (światła mrugną). |
+| Nowe miejsce, nowa sieć Wi-Fi | Zakładka **Wi-Fi** → „Szukaj sieci”, wybierz sieć, wpisz hasło i kliknij „Zapisz i połącz”. Płytka zapamięta sieć bez ponownego wgrywania programu. |
+
+Gdy nikt nie jest połączony z siecią ArcadeGame, płytka co 30 s próbuje wrócić do zapamiętanej sieci. Sieć Wi-Fi można też zmienić przez USB, wysyłając do Megi linię `NETSET<TAB>nazwa<TAB>hasło`.
 
 ## Jak to działa
 
@@ -24,7 +35,7 @@ telefon / komputer  ──Wi-Fi, WebSocket──▶  ESP8266  ──Serial3─�
 ```
 
 - **Mega** (`reflex-arcade-mega/`) prowadzi grę: odczytuje przyciski, steruje światłami i mierzy czas reakcji. Działa niezależnie od Wi-Fi, więc chwilowy zanik sieci nie psuje gry ani pomiarów.
-- **ESP8266** (`reflex-arcade-esp/`) łączy się z Wi-Fi, wyświetla stronę i przekazuje komunikaty między stroną a Megą. Ma wyłączone oszczędzanie energii Wi-Fi, sam łączy się ponownie z siecią i odcina martwe połączenia (heartbeat).
+- **ESP8266** (`reflex-arcade-esp/`) łączy się z Wi-Fi albo uruchamia własną sieć, wyświetla stronę i przekazuje komunikaty między stroną a Megą. WebSocket działa na tym samym porcie co strona (`/ws`). Ma wyłączone oszczędzanie energii Wi-Fi, sam łączy się ponownie z siecią, odcina martwe połączenia (heartbeat) i odrzuca uszkodzone wiadomości.
 - **Strona** sama łączy się ponownie po utracie połączenia i co 2,5 s sprawdza połączenie (`ping`/`pong`). Po ponownym połączeniu od razu dostaje aktualny stan gry.
 
 ## Podłączenie
@@ -72,14 +83,14 @@ arduino-cli compile --fqbn arduino:avr:mega reflex-arcade-mega
 arduino-cli upload -p /dev/cu.usbserial-2120 --fqbn arduino:avr:mega reflex-arcade-mega
 ```
 
-**2. ESP8266** (DIP 5, 6, 7 ON). Najpierw skopiuj `reflex-arcade-esp/secrets.example.h` do `reflex-arcade-esp/secrets.h` i wpisz w nim nazwę i hasło sieci (tylko 2,4 GHz). Plik `secrets.h` jest w `.gitignore`.
+**2. ESP8266** (DIP 5, 6, 7 ON). Najpierw skopiuj `reflex-arcade-esp/secrets.example.h` do `reflex-arcade-esp/secrets.h` i wpisz w nim nazwę i hasło pierwszej sieci (tylko 2,4 GHz) oraz hasło sieci ArcadeGame. Plik `secrets.h` jest w `.gitignore`. Późniejsze zmiany sieci robisz już ze strony.
 
 ```bash
 arduino-cli compile --fqbn esp8266:esp8266:generic reflex-arcade-esp
 arduino-cli upload -p /dev/cu.usbserial-2120 --fqbn esp8266:esp8266:generic:ResetMethod=nodemcu reflex-arcade-esp
 ```
 
-**3. Gra** (DIP 1, 2, 3, 4 ON, suwak na RXD3/TXD3): otwórz `http://reflex.local`. Jeśli ta nazwa nie działa, użyj adresu IP płytki. Pokazuje go Mega w monitorze portu (pole `"ip"`):
+**3. Gra** (DIP 1, 2, 3, 4 ON, suwak na RXD3/TXD3): otwórz **http://arcadegame.local**. Jeśli ta nazwa nie działa, użyj adresu IP płytki. Pokazuje go Mega w monitorze portu (pole `"ip"`, a pełny stan sieci w wiadomości `{"t":"net",...}`):
 
 ```bash
 arduino-cli monitor -p /dev/cu.usbserial-2120 -c baudrate=115200

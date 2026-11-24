@@ -59,6 +59,7 @@ async def main() -> None:
     clients = set()
     last_state = None
     last_pins = None
+    last_net = None
     write_lock = threading.Lock()
 
     def to_mega(line: str) -> None:
@@ -78,13 +79,15 @@ async def main() -> None:
                     loop.call_soon_threadsafe(lines.put_nowait, line)
 
     async def relay() -> None:
-        nonlocal last_state, last_pins
+        nonlocal last_state, last_pins, last_net
         while True:
             line = await lines.get()
             if line.startswith('{"t":"state"'):
                 last_state = line
             elif line.startswith('{"t":"pins"'):
                 last_pins = line
+            elif line.startswith('{"t":"net"'):
+                last_net = line
             elif args.verbose:
                 print("<<", line)
             websockets.broadcast(clients, line)
@@ -96,7 +99,10 @@ async def main() -> None:
                 await ws.send(last_pins)
             if last_state:
                 await ws.send(last_state)
+            if last_net:
+                await ws.send(last_net)
             to_mega("STATE?")
+            to_mega("NET?")  # the Mega passes this on to the ESP8266
             async for msg in ws:
                 if msg == "ping":
                     await ws.send("pong")

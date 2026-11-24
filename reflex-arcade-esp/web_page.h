@@ -72,6 +72,14 @@ section{display:none}section.active{display:block}
 .detail .big{font-size:28px;font-weight:800}
 .badge{padding:3px 8px;border-radius:6px;font-size:12px;font-weight:700;background:#2a3050}
 .badge.on{background:var(--ok);color:#0b0d17}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+.kv span{color:var(--muted)}
+.addr a{display:block;color:var(--p1);font-size:18px;font-weight:700;text-decoration:none;margin:4px 0}
+.addr .note{display:block;margin-bottom:8px}
+input[type=text],input:not([type]),input[type=password]{flex:1;min-width:160px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#0f1326;color:var(--text);font-size:15px}
+.check{display:flex;align-items:center;gap:6px;color:var(--text);font-size:14px;margin:8px 0}
+.scan{display:flex;flex-wrap:wrap;gap:6px}
+.scan button{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#1c2240;color:var(--text);cursor:pointer;font-size:13px}
 @media(max-width:520px){.row>label{width:100%}#timer{font-size:40px}.score{font-size:36px}.cell .c{font-size:15px}}
 </style>
 </head>
@@ -83,6 +91,7 @@ section{display:none}section.active{display:block}
 <nav>
   <button class="active" data-tab="game">Gra</button>
   <button data-tab="diag">Diagnostyka</button>
+  <button data-tab="wifi">Wi-Fi</button>
 </nav>
 <main>
 <section id="game" class="active">
@@ -151,6 +160,42 @@ section{display:none}section.active{display:block}
     </div>
   </div>
 </section>
+
+<section id="wifi">
+  <div class="card">
+    <h3 style="margin:0 0 8px">Jak wejść na grę</h3>
+    <div id="addrList" class="addr"><span class="note">Czekam na dane z płytki…</span></div>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">Twoja sieć Wi-Fi</h3>
+    <div class="kv"><span>Sieć</span><b id="nSsid">–</b></div>
+    <div class="kv"><span>Stan</span><b id="nState">–</b></div>
+    <div class="kv"><span>Adres IP</span><b id="nIp">–</b></div>
+    <div class="kv"><span>Sygnał</span><b id="nRssi">–</b></div>
+    <div class="actions"><button class="btn" id="netRetry">Połącz ponownie</button></div>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">Sieć płytki „<span id="apName">ArcadeGame</span>”</h3>
+    <div class="kv"><span>Stan</span><b id="apState">–</b></div>
+    <div class="kv"><span>Podłączone urządzenia</span><b id="apClients">–</b></div>
+    <label class="check"><input type="checkbox" id="apAlways"> Zawsze włączona</label>
+    <p class="note">Włącza się sama, gdy płytka nie znajdzie Twojej sieci. Ręcznie: zaznacz „Zawsze włączona” albo przytrzymaj
+      przycisk #1 gracza 1 przez 5 s, gdy nie trwa gra (światła mrugną). Hasło: z pliku secrets.h, domyślnie <b>arcadegame</b>.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 8px">Zmień sieć Wi-Fi</h3>
+    <div class="row"><label>Nazwa sieci</label>
+      <input id="ssidIn" list="ssidList" maxlength="32" autocomplete="off" placeholder="np. MojaSiec">
+      <datalist id="ssidList"></datalist>
+      <button class="btn" id="scanBtn">Szukaj sieci</button></div>
+    <div id="scanList" class="scan"></div>
+    <div class="row"><label>Hasło</label>
+      <input id="passIn" type="password" maxlength="64" autocomplete="off">
+      <label class="check"><input type="checkbox" id="showPass"> pokaż</label></div>
+    <div class="actions"><button class="btn go" id="saveNet">Zapisz i połącz</button></div>
+    <p class="note" id="netMsg">Płytka zapamięta sieć. Jeśli połączenie się nie uda w 15 s, włączy swoją sieć „ArcadeGame”. Tylko sieci 2,4 GHz.</p>
+  </div>
+</section>
 </main>
 <div id="overlay"></div>
 
@@ -163,10 +208,11 @@ section{display:none}section.active{display:block}
   let st = null, stAt = 0, sel = {p:0, i:0}, blink = null, pins = null;
 
   // ---------- WebSocket with automatic reconnect ----------
+  // On the board the WebSocket shares port 80 (/ws); the USB dev bridge uses page port + 1.
   const wsUrl = (() => {
-    const host = location.hostname || 'reflex.local';
-    const port = location.port && location.port !== '80' ? (+location.port + 1) : 81;
-    return 'ws://' + host + ':' + port + '/';
+    const host = location.hostname || 'arcadegame.local';
+    if (!location.port || location.port === '80') return 'ws://' + host + '/ws';
+    return 'ws://' + host + ':' + (+location.port + 1) + '/';
   })();
   let ws = null, tries = 0, lastMsg = 0, timer = null;
 
@@ -344,9 +390,70 @@ section{display:none}section.active{display:block}
     if (!on) stopBlink();
   }
 
+  // ---------- Wi-Fi settings ----------
+  const STA_STATE = {up:'połączona', connecting:'łączenie…', failed:'nie znaleziono / błąd', off:'brak zapisanej sieci'};
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let net = null;
+  function signal(r) { return !r ? '–' : (r > -60 ? 'bardzo dobry' : r > -70 ? 'dobry' : r > -80 ? 'słaby' : 'bardzo słaby') + ' (' + r + ' dBm)'; }
+  function renderNet() {
+    if (!net) return;
+    const s = net.sta, a = net.ap, links = [];
+    if (s.state === 'up') {
+      links.push('<span class="note">W sieci <b>' + esc(s.ssid) + '</b>:</span>');
+      links.push('<a href="http://' + net.host + '.local/">http://' + net.host + '.local</a>');
+      links.push('<a href="http://' + s.ip + '/">http://' + s.ip + '</a>');
+    }
+    if (a.on) {
+      links.push('<span class="note">Po połączeniu z siecią <b>' + esc(a.ssid) + '</b> (telefon zwykle sam otworzy grę):</span>');
+      links.push('<a href="http://' + net.host + '/">http://' + net.host + '</a>');
+      links.push('<a href="http://' + a.ip + '/">http://' + a.ip + '</a>');
+    }
+    $('addrList').innerHTML = links.join('') || '<span class="note">Płytka nie ma teraz żadnej sieci.</span>';
+    $('nSsid').textContent = s.ssid || '–';
+    $('nState').textContent = STA_STATE[s.state] || s.state;
+    $('nIp').textContent = s.ip || '–';
+    $('nRssi').textContent = signal(s.rssi);
+    $('apName').textContent = a.ssid;
+    $('apState').textContent = a.on ? (a.always ? 'włączona (zawsze)' : a.forced ? 'włączona ręcznie' : 'włączona (awaryjnie)') : 'wyłączona';
+    $('apClients').textContent = a.on ? a.clients : '–';
+    if (document.activeElement !== $('apAlways')) $('apAlways').checked = !!a.always;
+  }
+  $('netRetry').onclick = () => send('NETRETRY');
+  $('apAlways').onchange = (e) => {
+    if (!e.target.checked && net && net.sta.state !== 'up' &&
+        !confirm('Twoja sieć nie jest połączona – sieć płytki i tak zostanie włączona awaryjnie. Kontynuować?')) { e.target.checked = true; return; }
+    send('NETAP\t' + (e.target.checked ? 1 : 0));
+  };
+  $('showPass').onchange = (e) => { $('passIn').type = e.target.checked ? 'text' : 'password'; };
+  $('scanBtn').onclick = () => { if (send('NETSCAN')) { $('scanBtn').disabled = true; $('scanBtn').textContent = 'Szukam…'; setTimeout(() => { $('scanBtn').disabled = false; $('scanBtn').textContent = 'Szukaj sieci'; }, 8000); } };
+  $('saveNet').onclick = () => {
+    const ssid = $('ssidIn').value.trim(), pass = $('passIn').value;
+    if (!ssid || ssid.length > 32) return alert('Podaj nazwę sieci (do 32 znaków).');
+    if (pass && (pass.length < 8 || pass.length > 63)) return alert('Hasło Wi-Fi ma od 8 do 63 znaków (albo zostaw puste dla sieci otwartej).');
+    if (!confirm('Płytka przełączy się na sieć „' + ssid + '”. Ta strona straci połączenie.\n\n' +
+        'Potem połącz telefon z tą siecią i wejdź na http://' + (net ? net.host : 'arcadegame') + '.local\n' +
+        'Jeśli się nie uda, płytka włączy swoją sieć „ArcadeGame”.')) return;
+    if (send('NETSET\t' + ssid + '\t' + pass)) {
+      $('netMsg').textContent = 'Zapisano. Płytka łączy się z siecią „' + ssid + '”…';
+      $('passIn').value = '';
+    }
+  };
+  function renderScan(list) {
+    $('scanBtn').disabled = false; $('scanBtn').textContent = 'Szukaj sieci';
+    list.sort((x, y) => y.r - x.r);
+    $('ssidList').innerHTML = list.map((n) => '<option value="' + esc(n.s) + '">').join('');
+    $('scanList').innerHTML = list.map((n, i) => '<button data-i="' + i + '">' + esc(n.s) + (n.e ? ' 🔒' : '') + ' · ' + n.r + ' dBm</button>').join('') ||
+      '<span class="note">Nie znaleziono sieci.</span>';
+    $('scanList').querySelectorAll('button').forEach((b) => b.onclick = () => { $('ssidIn').value = list[+b.dataset.i].s; $('passIn').focus(); });
+  }
+
   // ---------- Messages ----------
   function onMsg(m) {
-    if (m.t === 'pins') {
+    if (m.t === 'net') {
+      net = m; renderNet();
+    } else if (m.t === 'scan') {
+      renderScan(m.nets || []);
+    } else if (m.t === 'pins') {
       pins = m; renderPins();
     } else if (m.t === 'state') {
       st = m; stAt = performance.now();
