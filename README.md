@@ -2,6 +2,8 @@
 
 Gra refleksowa dla 1 lub 2 graczy na płytce **Arduino Mega 2560 + ESP8266 (2w1)**, sterowana ze strony WWW w lokalnej sieci Wi-Fi.
 
+🗺️ **[Mapa przycisków PDF](docs/Mapa-przyciskow.pdf)** (2 strony A4): układ 3-3-2 obu graczy z pinami przycisków i świateł, widok z góry na stół i lista połączeń do odhaczania.
+
 📘 **[Poradnik PDF: Arduino Mega 2560 + ESP8266](docs/Poradnik-Arduino-Mega-ESP8266.pdf)** (4 strony A4): budowa płytki, piny, pull-up i dioda na D13, prąd i zasilanie, przełączniki DIP, typowe błędy.
 
 Zapalają się przyciski, a gracz ma jak najszybciej wcisnąć podświetlony. Po każdym trafieniu zapala się inny przycisk. Wygrywa ten, kto zdobędzie więcej punktów, a punkty liczą się jako trafienia minus pudła.
