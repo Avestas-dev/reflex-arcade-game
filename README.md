@@ -2,6 +2,8 @@
 
 Gra refleksowa dla 1 lub 2 graczy na płytce **Arduino Mega 2560 + ESP8266 (2w1)**, sterowana ze strony WWW w lokalnej sieci Wi-Fi.
 
+🔌 **[Schemat połączeń PDF: zasilacz 12 V, ULN2803, lampki](docs/Schemat-polaczen-12V-ULN2803.pdf)** (3 strony A4): pełny schemat zasilania i sterowania lampkami, ULN2803 nóżka po nóżce, układ na płytce uniwersalnej, montaż i test.
+
 🗺️ **[Mapa przycisków PDF](docs/Mapa-przyciskow.pdf)** (2 strony A4): układ 3-3-2 obu graczy z pinami przycisków i świateł, widok z góry na stół i lista połączeń do odhaczania.
 
 📘 **[Poradnik PDF: Arduino Mega 2560 + ESP8266](docs/Poradnik-Arduino-Mega-ESP8266.pdf)** (4 strony A4): budowa płytki, piny, pull-up i dioda na D13, prąd i zasilanie, przełączniki DIP, typowe błędy.
@@ -52,7 +54,7 @@ Każde światło: pin → rezystor **220 Ω** → LED → **GND**.
 | Gracz 1 (1–8) | D22 – D29 | D38 – D45 |
 | Gracz 2 (1–8) | D30 – D37 | D46 – D53 |
 
-- Jeden pin daje maks. około **20 mA**, więc wystarcza na zwykłą diodę LED. Przyciski arcade z podświetleniem 12 V albo taśmy LED trzeba podłączyć przez sterownik, np. ULN2803 albo moduł tranzystorów lub przekaźników. Dla modułów włączanych stanem niskim ustaw `LED_ACTIVE_HIGH 0`.
+- Jeden pin daje maks. około **20 mA**, więc wystarcza na zwykłą diodę LED. Przyciski arcade z podświetleniem 12 V albo taśmy LED trzeba podłączyć przez sterownik, np. ULN2803 (zobacz [schemat połączeń](docs/Schemat-polaczen-12V-ULN2803.pdf)) albo moduł tranzystorów lub przekaźników. Dla modułów włączanych stanem niskim ustaw `LED_ACTIVE_HIGH 0`.
 - **Tylko 8 świateł w sumie?** Ustaw `SHARED_LIGHTS 1` w `reflex-arcade-mega.ino`. Używane są wtedy piny D38–D45, światło N oznacza przycisk N u obu graczy, a w trybie 2 graczy cele są zawsze te same.
 - Pinów 0, 1, 14 i 15 nie używaj: służą do USB i do komunikacji z ESP8266. Pin 13 ma na płytce diodę „L”, więc nie nadaje się na wejście.
 

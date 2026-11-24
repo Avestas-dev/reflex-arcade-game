@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Reflex Arcade – schemat połączeń 12 V i ULN2803</title>
+<style>
+@page { size: A4; margin: 0; }
+:root{--ink:#141a33;--muted:#5b6385;--line:#dfe3f0;--soft:#f4f6fc;--navy:#0f1430;--cyan:#00b8d4;--mag:#d6339c;--gold:#f2a900;--green:#1e9e5a;--red:#e0384f;--blue:#2f6bff;--yel:#e8b400}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:var(--ink);font-size:8.9pt;line-height:1.42;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always;padding:0 12mm 10mm}
+.page:last-child{page-break-after:auto}
+.top{height:13mm;margin:0 -12mm 5mm;padding:0 12mm;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;font-size:8pt;letter-spacing:.04em}
+.top b{background:linear-gradient(90deg,#3ef0ff,#ff5ed1);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:9.5pt}
+.top .pg{display:flex;gap:4px}.top .pg i{width:18px;height:4px;border-radius:2px;background:#39406b}.top .pg i.on{background:#3ef0ff}
+h1{font-size:21pt;line-height:1.08;letter-spacing:-.02em;margin-bottom:2mm}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--cyan),var(--mag));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:11.5pt;margin-bottom:2mm;display:flex;align-items:center;gap:6px}
+h2 .n{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;background:var(--navy);color:#fff;font-size:8.5pt}
+h3{font-size:9.5pt;margin-bottom:.8mm}
+p{margin-bottom:1.5mm}
+.lead{font-size:9.6pt;color:var(--muted);margin-bottom:3mm}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.card{border:1px solid var(--line);border-radius:3mm;padding:3mm 3.4mm}
+.call{border-radius:3mm;padding:2.4mm 3.2mm;margin-top:3mm;border-left:4px solid}
+.call.warn{background:#fff4f5;border-color:var(--red)}.call.tip{background:#effbf5;border-color:var(--green)}.call.info{background:#eefaff;border-color:var(--cyan)}.call.gold{background:#fff8e6;border-color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:8.3pt}
+th{text-align:left;font-size:7.2pt;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:1mm 1.4mm;border-bottom:1.5px solid var(--ink)}
+td{padding:.8mm 1.4mm;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.legend{display:flex;flex-wrap:wrap;gap:2mm 5mm;font-size:8.2pt;margin:2mm 0}
+.legend span{display:inline-flex;align-items:center;gap:1.6mm}
+.w{display:inline-block;width:22px;height:5px;border-radius:3px}
+.small{font-size:7.6pt;color:var(--muted)}
+code{font-family:"SF Mono",Menlo,monospace;font-size:7.9pt;background:#eef0f8;border-radius:3px;padding:0 3px}
+.foot{position:absolute;bottom:5mm;left:12mm;right:12mm;font-size:7pt;color:#9aa0bd;display:flex;justify-content:space-between}
+svg text{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif}
+ul,ol{padding-left:4.5mm}li{margin-bottom:.9mm}
+.chk li{list-style:none;margin-left:-4.5mm;padding-left:5mm;position:relative}
+.chk li::before{content:"☐";position:absolute;left:0;color:#8a90b5}
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1: full schematic ================= -->
+<section class="page">
+  <div class="top"><span><b>REFLEX ARCADE</b> &nbsp;·&nbsp; Schemat połączeń: zasilanie 12 V, ULN2803, lampki</span><span class="pg"><i class="on"></i><i></i><i></i></span></div>
+  <h1>Schemat połączeń <em>całego układu</em></h1>
+  <p class="lead">Zasilacz 12 V zasila naraz Arduino (przez gniazdo DC) i lampki. Arduino nie zasila lampek bezpośrednio: daje tylko sygnał 5 V do <b>ULN2803</b>, który jak 8 kluczy włącza lampki 12 V do masy. Jeden ULN2803 obsługuje jednego gracza.</p>
+
+  <svg viewBox="0 0 740 690" width="100%"><text x="14" y="24" font-size="10.5" fill="#5b6385">230 V ~ (kabel IEC C13)</text><path d="M60 28 V40" stroke="#5b6385" stroke-width="3"/><rect x="10" y="40" width="160" height="58" rx="8" fill="#0f1430"/><text x="90" y="61" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">Mean Well GST60A12</text><text x="90" y="77" text-anchor="middle" font-size="10.5" fill="#9fb">zasilacz 12 V · 5 A</text><text x="90" y="91" text-anchor="middle" font-size="8.5" fill="#c9cff0">wtyk 5,5/2,1 · środek = +</text><path d="M90 98 V116" stroke="#5b6385" stroke-width="4"/><rect x="20" y="116" width="140" height="42" rx="6" fill="#fff" stroke="#141a33" stroke-width="2"/><text x="90" y="134" text-anchor="middle" font-size="10.5" font-weight="700">Gniazdo DC (żeńskie)</text><text x="90" y="149" text-anchor="middle" font-size="8.5" fill="#5b6385">+ i − sprawdź miernikiem</text><path d="M160 128 H186" stroke="#e0384f" stroke-width="3.5"/><rect x="186" y="118" width="56" height="20" rx="4" fill="#fff8e6" stroke="#f2a900" stroke-width="2"/><text x="214" y="132" text-anchor="middle" font-size="9.5" font-weight="800">bezp. 1 A</text><path d="M242 128 H268" stroke="#e0384f" stroke-width="3.5"/><path d="M160 146 H176 V196 H268" stroke="#141a33" stroke-width="3.5" fill="none"/><rect x="268" y="104" width="92" height="48" rx="7" fill="#fff" stroke="#e0384f" stroke-width="2.5"/><text x="314" y="121" text-anchor="middle" font-size="10.5" font-weight="800" fill="#e0384f">WAGO +12 V</text><rect x="276" y="128" width="11" height="18" rx="2" fill="#ffd6dc"/><rect x="291" y="128" width="11" height="18" rx="2" fill="#ffd6dc"/><rect x="306" y="128" width="11" height="18" rx="2" fill="#ffd6dc"/><rect x="321" y="128" width="11" height="18" rx="2" fill="#ffd6dc"/><rect x="336" y="128" width="11" height="18" rx="2" fill="#ffd6dc"/><rect x="268" y="172" width="92" height="48" rx="7" fill="#fff" stroke="#141a33" stroke-width="2.5"/><text x="314" y="189" text-anchor="middle" font-size="10.5" font-weight="800" fill="#141a33">WAGO GND</text><rect x="276" y="196" width="11" height="18" rx="2" fill="#dfe3f0"/><rect x="291" y="196" width="11" height="18" rx="2" fill="#dfe3f0"/><rect x="306" y="196" width="11" height="18" rx="2" fill="#dfe3f0"/><rect x="321" y="196" width="11" height="18" rx="2" fill="#dfe3f0"/><rect x="336" y="196" width="11" height="18" rx="2" fill="#dfe3f0"/><rect x="10" y="232" width="276" height="98" rx="8" fill="#fff6f7" stroke="#e0384f" stroke-width="1.5"/><text x="20" y="250" font-size="10.5" font-weight="800" fill="#e0384f">WAGO +12 V: 5 torów</text><text x="22" y="266" font-size="9.5">1 · wejście z bezpiecznika</text><text x="22" y="280" font-size="9.5">2 · wtyczka DC do Arduino (+)</text><text x="22" y="294" font-size="9.5">3 · płytka ULN: nóżki 10 (COM)</text><text x="22" y="308" font-size="9.5">4 · lampki + gracza 1 (łańcuszek)</text><text x="22" y="322" font-size="9.5">5 · lampki + gracza 2 (łańcuszek)</text><rect x="10" y="338" width="276" height="98" rx="8" fill="#f4f6fc" stroke="#141a33" stroke-width="1.5"/><text x="20" y="356" font-size="10.5" font-weight="800">WAGO GND: 5 torów</text><text x="22" y="372" font-size="9.5">1 · minus z gniazda DC</text><text x="22" y="386" font-size="9.5">2 · wtyczka DC do Arduino (−)</text><text x="22" y="400" font-size="9.5">3 · płytka ULN: nóżki 9 (+ GND Arduino)</text><text x="22" y="414" font-size="9.5">4 · COM przycisków gracza 1 (łańcuszek)</text><text x="22" y="428" font-size="9.5">5 · COM przycisków gracza 2 (łańcuszek)</text><rect x="440" y="20" width="290" height="190" rx="10" fill="#151a33"/><text x="585" y="40" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff">Mega 2560 + ESP8266</text><text x="585" y="54" text-anchor="middle" font-size="9" fill="#c9cff0">z nakładką śrubową · USB tylko do programowania</text><rect x="426" y="64" width="28" height="36" rx="4" fill="#2d2d33"/><text x="440" y="86" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">DC</text><rect x="368" y="65" width="46" height="16" rx="4" fill="#e0384f"/><text x="391" y="77" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">+12 V</text><path d="M414 72 H426" stroke="#e0384f" stroke-width="2.5"/><rect x="368" y="85" width="46" height="16" rx="4" fill="#141a33"/><text x="391" y="97" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">GND</text><path d="M414 92 H426" stroke="#141a33" stroke-width="2.5"/><text x="391" y="116" text-anchor="middle" font-size="8.5" fill="#5b6385">wtyczka DC</text><text x="391" y="127" text-anchor="middle" font-size="8.5" fill="#5b6385">(męska)</text><rect x="476" y="66" width="240" height="20" rx="5" fill="#1e9e5a"/><text x="596" y="80" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">D22–D29 ← przyciski G1 (NO)</text><rect x="476" y="91" width="240" height="20" rx="5" fill="#1e9e5a"/><text x="596" y="105" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">D30–D37 ← przyciski G2 (NO)</text><rect x="476" y="116" width="240" height="20" rx="5" fill="#e8b400"/><text x="596" y="130" text-anchor="middle" font-size="10" font-weight="800" fill="#141a33">D38–D45 → ULN #1, we 1–8</text><rect x="476" y="141" width="240" height="20" rx="5" fill="#e8b400"/><text x="596" y="155" text-anchor="middle" font-size="10" font-weight="800" fill="#141a33">D46–D53 → ULN #2, we 1–8</text><rect x="476" y="168" width="150" height="20" rx="5" fill="#555c80"/><text x="551" y="182" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">GND (nakładka)</text><path d="M626 178 H640" stroke="#c9cff0" stroke-width="2"/><rect x="640" y="171" width="40" height="16" rx="4" fill="#fff"/><text x="660" y="183" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">GND</text><path d="M600 210 V226 H390 V290" stroke="#e8b400" stroke-width="5" fill="none"/><path d="M690 210 V242 H590 V290" stroke="#e8b400" stroke-width="5" fill="none"/><text x="470" y="221" font-size="9.5" font-weight="800" fill="#a77f00">×8 · D38–D45</text><text x="598" y="256" font-size="9.5" font-weight="800" fill="#a77f00">×8 · D46–D53</text><rect x="300" y="262" width="430" height="150" rx="10" fill="#e9f7ee" stroke="#1e9e5a" stroke-width="2"/><text x="312" y="280" font-size="10.5" font-weight="800" fill="#1e7a46">Płytka uniwersalna 12×18 cm</text><rect x="335" y="290" width="110" height="96" rx="6" fill="#141a33"/><circle cx="390" cy="296" r="5" fill="#e9f7ee"/><text x="390" y="327" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">ULN2803</text><text x="390" y="343" text-anchor="middle" font-size="10" font-weight="700" fill="#3ef0ff">#1 · gracz 1</text><text x="390" y="370" text-anchor="middle" font-size="8.5" fill="#c9cff0">we 1–8 · wy 18–11</text><path d="M445 326 H452" stroke="#e0384f" stroke-width="2.5"/><rect x="452" y="319" width="46" height="16" rx="4" fill="#e0384f"/><text x="475" y="331" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">+12 V</text><text x="502" y="330" font-size="8.5" fill="#5b6385">n. 10</text><path d="M445 352 H452" stroke="#141a33" stroke-width="2.5"/><rect x="452" y="345" width="46" height="16" rx="4" fill="#141a33"/><text x="475" y="357" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">GND</text><text x="502" y="356" font-size="8.5" fill="#5b6385">n. 9</text><rect x="535" y="290" width="110" height="96" rx="6" fill="#141a33"/><circle cx="590" cy="296" r="5" fill="#e9f7ee"/><text x="590" y="327" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">ULN2803</text><text x="590" y="343" text-anchor="middle" font-size="10" font-weight="700" fill="#ff5ed1">#2 · gracz 2</text><text x="590" y="370" text-anchor="middle" font-size="8.5" fill="#c9cff0">we 1–8 · wy 18–11</text><path d="M645 326 H652" stroke="#e0384f" stroke-width="2.5"/><rect x="652" y="319" width="46" height="16" rx="4" fill="#e0384f"/><text x="675" y="331" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">+12 V</text><text x="702" y="330" font-size="8.5" fill="#5b6385">n. 10</text><path d="M645 352 H652" stroke="#141a33" stroke-width="2.5"/><rect x="652" y="345" width="46" height="16" rx="4" fill="#141a33"/><text x="675" y="357" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">GND</text><text x="702" y="356" font-size="8.5" fill="#5b6385">n. 9</text><path d="M390 386 V440 H340" stroke="#2f6bff" stroke-width="4" fill="none"/><path d="M590 386 V440 H710" stroke="#2f6bff" stroke-width="4" fill="none"/><text x="398" y="434" font-size="9.5" font-weight="800" fill="#2f6bff">×8 lampki − G1</text><text x="598" y="434" font-size="9.5" font-weight="800" fill="#2f6bff">×8 lampki − G2</text><rect x="10" y="470" width="350" height="210" rx="12" fill="#eefaff" stroke="#0091a8" stroke-width="2.5"/><text x="22" y="490" font-size="12.5" font-weight="800" fill="#0091a8">Panel gracza 1 · przyciski #1–#8</text><circle cx="70" cy="578" r="44" fill="#0091a8" stroke="#141a33" stroke-width="2.5"/><text x="70" y="583" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">#N</text><text x="70" y="640" text-anchor="middle" font-size="9" fill="#5b6385">tak samo każdy z 8</text><rect x="130" y="508" width="72" height="20" rx="4" fill="#ffd6dc"/><text x="166" y="522" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">lampka +</text><rect x="130" y="538" width="72" height="20" rx="4" fill="#d9e4ff"/><text x="166" y="552" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">lampka −</text><rect x="130" y="568" width="72" height="20" rx="4" fill="#d9f2e4"/><text x="166" y="582" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">styk NO</text><rect x="130" y="598" width="72" height="20" rx="4" fill="#dfe3f0"/><text x="166" y="612" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">styk COM</text><rect x="130" y="628" width="72" height="20" rx="4" fill="#fff" stroke="#c9cee3"/><text x="166" y="642" text-anchor="middle" font-size="9.5" font-weight="800" fill="#8a90b5">styk NC</text><path d="M202 518 H216" stroke="#e0384f" stroke-width="2.5"/><rect x="216" y="511" width="40" height="16" rx="4" fill="#e0384f"/><text x="236" y="523" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">+12 V</text><text x="266" y="522" font-size="9" fill="#5b6385">łańcuszek</text><path d="M340 440 V548 H202" stroke="#2f6bff" stroke-width="4" fill="none"/><text x="212" y="543" font-size="9" font-weight="700" fill="#2f6bff">z ULN #1, nóżki 18…11</text><path d="M202 578 H216" stroke="#1e9e5a" stroke-width="2.5"/><rect x="216" y="571" width="53" height="16" rx="4" fill="#1e9e5a"/><text x="242" y="583" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">D22…D29</text><path d="M202 608 H216" stroke="#141a33" stroke-width="2.5"/><rect x="216" y="601" width="27" height="16" rx="4" fill="#141a33"/><text x="230" y="613" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">GND</text><text x="254" y="612" font-size="9" fill="#5b6385">łańcuszek</text><text x="212" y="642" font-size="9" fill="#8a90b5">nie podłączaj</text><rect x="380" y="470" width="350" height="210" rx="12" fill="#fff0f8" stroke="#b02a82" stroke-width="2.5"/><text x="392" y="490" font-size="12.5" font-weight="800" fill="#b02a82">Panel gracza 2 · przyciski #1–#8</text><circle cx="440" cy="578" r="44" fill="#b02a82" stroke="#141a33" stroke-width="2.5"/><text x="440" y="583" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">#N</text><text x="440" y="640" text-anchor="middle" font-size="9" fill="#5b6385">tak samo każdy z 8</text><rect x="500" y="508" width="72" height="20" rx="4" fill="#ffd6dc"/><text x="536" y="522" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">lampka +</text><rect x="500" y="538" width="72" height="20" rx="4" fill="#d9e4ff"/><text x="536" y="552" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">lampka −</text><rect x="500" y="568" width="72" height="20" rx="4" fill="#d9f2e4"/><text x="536" y="582" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">styk NO</text><rect x="500" y="598" width="72" height="20" rx="4" fill="#dfe3f0"/><text x="536" y="612" text-anchor="middle" font-size="9.5" font-weight="800" fill="#141a33">styk COM</text><rect x="500" y="628" width="72" height="20" rx="4" fill="#fff" stroke="#c9cee3"/><text x="536" y="642" text-anchor="middle" font-size="9.5" font-weight="800" fill="#8a90b5">styk NC</text><path d="M572 518 H586" stroke="#e0384f" stroke-width="2.5"/><rect x="586" y="511" width="40" height="16" rx="4" fill="#e0384f"/><text x="606" y="523" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">+12 V</text><text x="636" y="522" font-size="9" fill="#5b6385">łańcuszek</text><path d="M710 440 V548 H572" stroke="#2f6bff" stroke-width="4" fill="none"/><text x="582" y="543" font-size="9" font-weight="700" fill="#2f6bff">z ULN #2, nóżki 18…11</text><path d="M572 578 H586" stroke="#1e9e5a" stroke-width="2.5"/><rect x="586" y="571" width="53" height="16" rx="4" fill="#1e9e5a"/><text x="612" y="583" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">D30…D37</text><path d="M572 608 H586" stroke="#141a33" stroke-width="2.5"/><rect x="586" y="601" width="27" height="16" rx="4" fill="#141a33"/><text x="600" y="613" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">GND</text><text x="624" y="612" font-size="9" fill="#5b6385">łańcuszek</text><text x="582" y="642" font-size="9" fill="#8a90b5">nie podłączaj</text></svg>
+
+  <div class="legend">
+    <span><i class="w" style="background:var(--red)"></i><b>+12 V</b> (za bezpiecznikiem)</span>
+    <span><i class="w" style="background:var(--ink)"></i><b>GND / masa</b> (wspólna dla wszystkiego)</span>
+    <span><i class="w" style="background:var(--yel)"></i><b>sygnał 5 V</b> Arduino → ULN</span>
+    <span><i class="w" style="background:var(--blue)"></i><b>lampka −</b> ← wyjście ULN</span>
+    <span><i class="w" style="background:var(--green)"></i><b>przycisk</b> → Arduino</span></div><p class="small" style="margin:0">Znaczniki <b style="color:#e0384f">+12 V</b> i <b>GND</b> to skrót rysunkowy: każdy taki znacznik łączysz przewodem z odpowiednią złączką WAGO (listy obok). Dzięki temu na schemacie nic się nie przecina.</p><div style="display:none">
+  </div>
+  <div class="foot"><span>Reflex Arcade · github.com/Avestas-dev/reflex-arcade-game</span><span>1 / 3</span></div>
+</section>
+
+<!-- ================= PAGE 2: ULN2803 detail ================= -->
+<section class="page">
+  <div class="top"><span><b>REFLEX ARCADE</b> &nbsp;·&nbsp; Schemat połączeń: zasilanie 12 V, ULN2803, lampki</span><span class="pg"><i></i><i class="on"></i><i></i></span></div>
+  <h1>ULN2803: <em>nóżka po nóżce</em></h1>
+  <p class="lead">8 tranzystorów w jednej kostce. Gdy Arduino daje na wejście 5 V (HIGH), wyjście naprzeciwko zwiera się do masy i lampka się zapala. Rezystory 220 Ω między Arduino a ULN nie są potrzebne, bo układ ma je w środku.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><span class="n">1</span>Wyprowadzenia (widok z góry)</h2>
+      <svg viewBox="0 0 330 320" width="86%" style="display:block;margin:0 auto">
+        <rect x="115" y="14" width="100" height="292" rx="8" fill="#141a33"/>
+        <path d="M152 14 a13 13 0 0 0 26 0" fill="#fff"/>
+        <circle cx="132" cy="34" r="4" fill="#fff"/>
+        <text x="165" y="170" text-anchor="middle" font-size="14" font-weight="900" fill="#fff" transform="rotate(-90 165 165)">ULN2803A</text>
+        <g font-size="10.5" font-weight="700">
+          <!-- left pins 1-9 -->
+          <g fill="#c9cee3"><rect x="99" y="34" width="16" height="12"/><rect x="99" y="64" width="16" height="12"/><rect x="99" y="94" width="16" height="12"/><rect x="99" y="124" width="16" height="12"/><rect x="99" y="154" width="16" height="12"/><rect x="99" y="184" width="16" height="12"/><rect x="99" y="214" width="16" height="12"/><rect x="99" y="244" width="16" height="12"/><rect x="99" y="274" width="16" height="12"/></g>
+          <g fill="#c9cee3"><rect x="215" y="34" width="16" height="12"/><rect x="215" y="64" width="16" height="12"/><rect x="215" y="94" width="16" height="12"/><rect x="215" y="124" width="16" height="12"/><rect x="215" y="154" width="16" height="12"/><rect x="215" y="184" width="16" height="12"/><rect x="215" y="214" width="16" height="12"/><rect x="215" y="244" width="16" height="12"/><rect x="215" y="274" width="16" height="12"/></g>
+          <g fill="#fff" font-size="9"><text x="125" y="44">1</text><text x="125" y="74">2</text><text x="125" y="104">3</text><text x="125" y="134">4</text><text x="125" y="164">5</text><text x="125" y="194">6</text><text x="125" y="224">7</text><text x="125" y="254">8</text><text x="125" y="284">9</text>
+            <text x="193" y="44">18</text><text x="193" y="74">17</text><text x="193" y="104">16</text><text x="193" y="134">15</text><text x="193" y="164">14</text><text x="193" y="194">13</text><text x="193" y="224">12</text><text x="193" y="254">11</text><text x="193" y="284">10</text></g>
+          <g fill="#a77f00" text-anchor="end"><text x="94" y="44">we 1</text><text x="94" y="74">we 2</text><text x="94" y="104">we 3</text><text x="94" y="134">we 4</text><text x="94" y="164">we 5</text><text x="94" y="194">we 6</text><text x="94" y="224">we 7</text><text x="94" y="254">we 8</text></g>
+          <text x="94" y="284" text-anchor="end">GND</text>
+          <g fill="#2f6bff"><text x="236" y="44">wy 1</text><text x="236" y="74">wy 2</text><text x="236" y="104">wy 3</text><text x="236" y="134">wy 4</text><text x="236" y="164">wy 5</text><text x="236" y="194">wy 6</text><text x="236" y="224">wy 7</text><text x="236" y="254">wy 8</text></g>
+          <text x="236" y="284" fill="#e0384f">COM +12 V</text>
+          <g font-size="8.5" font-weight="400" fill="#5b6385"><text x="2" y="44">od Arduino</text><text x="282" y="44">do lampki −</text></g>
+        </g>
+      </svg>
+      <p class="small" style="margin:0"><b>Wycięcie (półkole)</b> i kropka oznaczają górę i nóżkę 1. Przed włożeniem kostki do podstawki sprawdź, czy wycięcie w podstawce wskazuje tę samą stronę.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">2</span>Tabela połączeń obu kostek</h2>
+      <table>
+        <tr><th>Nóżka</th><th>ULN #1 (gracz 1)</th><th>ULN #2 (gracz 2)</th></tr>
+        <tr><td><b>1 – 8</b> wejścia</td><td>D38 – D45<br><span class="small">nóżka 1 ← D38 … nóżka 8 ← D45</span></td><td>D46 – D53<br><span class="small">nóżka 1 ← D46 … nóżka 8 ← D53</span></td></tr>
+        <tr><td><b>9</b> GND</td><td colspan="2">WAGO GND (wspólna masa z Arduino)</td></tr>
+        <tr><td><b>10</b> COM</td><td colspan="2">WAGO +12 V (za bezpiecznikiem)</td></tr>
+        <tr><td><b>18 – 11</b> wyjścia</td><td>lampka − #1 … #8<br><span class="small">18 → #1, 17 → #2 … 11 → #8</span></td><td>lampka − #1 … #8<br><span class="small">18 → #1, 17 → #2 … 11 → #8</span></td></tr>
+      </table>
+      <table style="margin-top:3mm">
+        <tr><th>Przycisk</th><th>Arduino</th><th>ULN we</th><th>ULN wy</th><th>Lampka</th></tr>
+        <tr><td>#1</td><td>D38 / D46</td><td>1</td><td>18</td><td>− #1</td></tr>
+        <tr><td>#2</td><td>D39 / D47</td><td>2</td><td>17</td><td>− #2</td></tr>
+        <tr><td>#3</td><td>D40 / D48</td><td>3</td><td>16</td><td>− #3</td></tr>
+        <tr><td>#4</td><td>D41 / D49</td><td>4</td><td>15</td><td>− #4</td></tr>
+        <tr><td>#5</td><td>D42 / D50</td><td>5</td><td>14</td><td>− #5</td></tr>
+        <tr><td>#6</td><td>D43 / D51</td><td>6</td><td>13</td><td>− #6</td></tr>
+        <tr><td>#7</td><td>D44 / D52</td><td>7</td><td>12</td><td>− #7</td></tr>
+        <tr><td>#8</td><td>D45 / D53</td><td>8</td><td>11</td><td>− #8</td></tr>
+      </table>
+      <p class="small" style="margin:1.2mm 0 0">Pierwszy pin dotyczy gracza 1, drugi gracza 2. Numery #1–#8 są takie jak na mapie przycisków (układ 3-3-2).</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:4mm">
+    <h2><span class="n">3</span>Proponowany układ na płytce uniwersalnej 12 × 18 cm</h2>
+    <svg viewBox="0 0 720 250" width="100%">
+      <rect x="6" y="6" width="708" height="238" rx="10" fill="#e9f7ee" stroke="#1e9e5a" stroke-width="2"/>
+      <!-- input terminals left -->
+      <g font-size="10" font-weight="700">
+        <rect x="24" y="30" width="56" height="190" rx="5" fill="#2f9d5d"/><text x="52" y="22" text-anchor="middle">ARK we G1</text>
+        <rect x="374" y="30" width="56" height="190" rx="5" fill="#2f9d5d"/><text x="402" y="22" text-anchor="middle">ARK we G2</text>
+        <rect x="270" y="30" width="56" height="190" rx="5" fill="#2f6bff"/><text x="298" y="22" text-anchor="middle">ARK wy G1</text>
+        <rect x="620" y="30" width="56" height="190" rx="5" fill="#2f6bff"/><text x="648" y="22" text-anchor="middle">ARK wy G2</text>
+      </g>
+      <g fill="#fff" font-size="9" font-weight="700">
+        <text x="52" y="52" text-anchor="middle">D38</text><text x="52" y="74" text-anchor="middle">D39</text><text x="52" y="96" text-anchor="middle">D40</text><text x="52" y="118" text-anchor="middle">D41</text><text x="52" y="140" text-anchor="middle">D42</text><text x="52" y="162" text-anchor="middle">D43</text><text x="52" y="184" text-anchor="middle">D44</text><text x="52" y="206" text-anchor="middle">D45</text>
+        <text x="402" y="52" text-anchor="middle">D46</text><text x="402" y="74" text-anchor="middle">D47</text><text x="402" y="96" text-anchor="middle">D48</text><text x="402" y="118" text-anchor="middle">D49</text><text x="402" y="140" text-anchor="middle">D50</text><text x="402" y="162" text-anchor="middle">D51</text><text x="402" y="184" text-anchor="middle">D52</text><text x="402" y="206" text-anchor="middle">D53</text>
+        <text x="298" y="52" text-anchor="middle">#1 −</text><text x="298" y="74" text-anchor="middle">#2 −</text><text x="298" y="96" text-anchor="middle">#3 −</text><text x="298" y="118" text-anchor="middle">#4 −</text><text x="298" y="140" text-anchor="middle">#5 −</text><text x="298" y="162" text-anchor="middle">#6 −</text><text x="298" y="184" text-anchor="middle">#7 −</text><text x="298" y="206" text-anchor="middle">#8 −</text>
+        <text x="648" y="52" text-anchor="middle">#1 −</text><text x="648" y="74" text-anchor="middle">#2 −</text><text x="648" y="96" text-anchor="middle">#3 −</text><text x="648" y="118" text-anchor="middle">#4 −</text><text x="648" y="140" text-anchor="middle">#5 −</text><text x="648" y="162" text-anchor="middle">#6 −</text><text x="648" y="184" text-anchor="middle">#7 −</text><text x="648" y="206" text-anchor="middle">#8 −</text>
+      </g>
+      <!-- chips -->
+      <rect x="140" y="36" width="70" height="180" rx="6" fill="#141a33"/><path d="M164 36 a11 11 0 0 0 22 0" fill="#e9f7ee"/>
+      <text x="175" y="130" text-anchor="middle" font-size="11" font-weight="900" fill="#fff" transform="rotate(-90 175 126)">ULN #1</text>
+      <rect x="490" y="36" width="70" height="180" rx="6" fill="#141a33"/><path d="M514 36 a11 11 0 0 0 22 0" fill="#e9f7ee"/>
+      <text x="525" y="130" text-anchor="middle" font-size="11" font-weight="900" fill="#fff" transform="rotate(-90 525 126)">ULN #2</text>
+      <!-- traces -->
+      <g stroke="#e8b400" stroke-width="2.4">
+        <path d="M80 48 H140"/><path d="M80 70 H140"/><path d="M80 92 H140"/><path d="M80 114 H140"/><path d="M80 136 H140"/><path d="M80 158 H140"/><path d="M80 180 H140"/><path d="M80 202 H140"/>
+        <path d="M430 48 H490"/><path d="M430 70 H490"/><path d="M430 92 H490"/><path d="M430 114 H490"/><path d="M430 136 H490"/><path d="M430 158 H490"/><path d="M430 180 H490"/><path d="M430 202 H490"/>
+      </g>
+      <g stroke="#2f6bff" stroke-width="2.4">
+        <path d="M210 48 H270"/><path d="M210 70 H270"/><path d="M210 92 H270"/><path d="M210 114 H270"/><path d="M210 136 H270"/><path d="M210 158 H270"/><path d="M210 180 H270"/><path d="M210 202 H270"/>
+        <path d="M560 48 H620"/><path d="M560 70 H620"/><path d="M560 92 H620"/><path d="M560 114 H620"/><path d="M560 136 H620"/><path d="M560 158 H620"/><path d="M560 180 H620"/><path d="M560 202 H620"/>
+      </g>
+      <!-- power terminal -->
+      <rect x="300" y="226" width="120" height="14" rx="3" fill="#141a33"/>
+      <text x="360" y="237" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">ARK zasilanie: +12 V | GND</text>
+      <text x="175" y="232" text-anchor="middle" font-size="8.5" fill="#5b6385">9 → GND, 10 → +12 V</text>
+      <text x="525" y="232" text-anchor="middle" font-size="8.5" fill="#5b6385">9 → GND, 10 → +12 V</text>
+    </svg>
+    <p class="small" style="margin:1mm 0 0">Kostki w podstawkach DIP-18 (nie lutuj ULN bezpośrednio). Złącza ARK 2-pin łącz w listwy: 4 na wejścia, 4 na wyjścia i 1 na zasilanie na każdą kostkę, razem 18 z 30. Ścieżki wykonaj przewodem lub mostkami z cyny.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="call warn">
+      <h3>Sprawdź napięcie lampek!</h3>
+      <p style="margin:0">Schemat zakłada lampki <b>12 V</b> (z rezystorem w środku). Lampki <b>5 V</b> przy 12 V się spalą. Gołe diody LED przy 12 V potrzebują rezystora <b>680 Ω–1 kΩ</b> każda.</p>
+    </div>
+    <div class="call gold">
+      <h3>Lampki żarowe zamiast LED?</h3>
+      <p style="margin:0">Żarówka 12 V bierze 80–250 mA: 8 naraz przegrzeje ULN2803 i przepali bezpiecznik 1 A. Wymień je na wkłady LED 12 V.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Reflex Arcade · Schemat połączeń</span><span>2 / 3</span></div>
+</section>
+
+<!-- ================= PAGE 3: assembly & test ================= -->
+<section class="page">
+  <div class="top"><span><b>REFLEX ARCADE</b> &nbsp;·&nbsp; Schemat połączeń: zasilanie 12 V, ULN2803, lampki</span><span class="pg"><i></i><i></i><i class="on"></i></span></div>
+  <h1>Montaż krok po kroku <em>i test</em></h1>
+  <p class="lead">Najpierw składaj bez zasilania, potem uruchamiaj etapami. Dzięki temu ewentualny błąd znajdziesz od razu, zanim cokolwiek się uszkodzi.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><span class="n">⚡</span>Rozdział zasilania</h2>
+      <p>Dwie złączki WAGO 5-torowe: <b>+12 V</b> (wejście z bezpiecznika) i <b>GND</b>. Co wpiąć w który tor, jest na <b>stronie 1</b> w ramkach obok schematu. Pozostałe 8 złączek przyda się do łączenia łańcuszków.</p>
+      <p style="margin:0"><b>Masa Arduino</b> jest wspólna przez wtyczkę DC, ale połącz też pin <b>GND</b> nakładki z płytką ULN. Przyda się, gdy Arduino zasilasz chwilowo samym USB.</p>
+    </div>
+    <div class="card">
+      <h2><span class="n">🔌</span>Biegunowość: najpierw zmierz</h2>
+      <ul>
+        <li>Zasilacz Mean Well ma wtyk <b>5,5/2,1 z plusem w środku</b>, tak jak Arduino.</li>
+        <li>W przewodach DC kolory bywają różne. <b>Multimetrem sprawdź</b>, który przewód gniazda to +12 V, i oznacz go czerwoną rurką termokurczliwą.</li>
+        <li>Wtyczkę do Arduino zrób tak samo: <b>środek = +</b>. Odwrotna biegunowość może uszkodzić płytkę.</li>
+        <li>Bezpiecznik zawsze w przewodzie <b>+</b>, jak najbliżej gniazda.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:3.5mm">
+    <h2><span class="n">🔧</span>Kolejność montażu i uruchamiania</h2>
+    <div class="grid2" style="gap:2mm 6mm">
+      <ol>
+        <li><b>Płytka ULN:</b> wlutuj podstawki DIP-18 i złącza ARK, poprowadź połączenia. Kostek jeszcze nie wkładaj.</li>
+        <li><b>Zasilanie:</b> gniazdo DC → bezpiecznik → WAGO. Podłącz zasilacz i <b>zmierz 12 V</b> na WAGO, z dobrym plusem. Odłącz.</li>
+        <li><b>Arduino:</b> wtyczka DC z WAGO. Po włączeniu ma się zaświecić dioda ON, a strona gry ma działać jak dotąd.</li>
+        <li><b>Płytka ULN bez kostek:</b> podłącz zasilanie płytki i sprawdź, że na podstawce jest <b>12 V między nóżkami 10 i 9</b>.</li>
+      </ol>
+      <ol start="5">
+        <li><b>Wyłącz</b> zasilanie, włóż ULN2803 (wycięciem do góry) i podłącz <b>jedną lampkę</b> (#1 gracza 1).</li>
+        <li><b>Test:</b> strona → Diagnostyka → Gracz 1 #1 → „Włącz światło”. Lampka świeci? Jeśli nie, odwróć jej przewody (+/−).</li>
+        <li>Podłącz resztę lampek i sprawdź każdą. Potem przyciski: <b>COM → GND, NO → pin</b>. Licznik w Diagnostyce ma rosnąć.</li>
+        <li>Na koniec <b>„Wszystkie światła ON”</b> przez minutę. Kostki ULN mogą być ciepłe, ale nie gorące.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:3.5mm">
+    <div class="call warn" style="margin:0">
+      <h3>Czego nie robić</h3>
+      <ul style="margin:0">
+        <li><b>Nigdy</b> nie podawaj 12 V na pin Arduino. Sygnały przycisków to tylko 5 V i masa.</li>
+        <li>Nie podłączaj lampek 12 V bezpośrednio do pinów D38–D53, tylko przez ULN.</li>
+        <li>Nie łącz przycisku ze stykiem <b>NC</b>: wtedy działa odwrotnie (ciągle „wciśnięty”).</li>
+        <li>Przewody przekładaj tylko przy wyłączonym zasilaczu.</li>
+      </ul>
+    </div>
+    <div class="call info" style="margin:0">
+      <h3>Nakładka śrubowa a przełączniki DIP</h3>
+      <p style="margin:0">Nakładka przykryje przełączniki DIP. Zanim ją założysz, ustaw je na <b>1, 2, 3, 4 ON</b>. Wtedy gra działa, a nowy program na Megę wgrasz przez USB bez zdejmowania nakładki. Zdejmować ją trzeba tylko przy wgrywaniu programu na ESP8266 (5, 6, 7).</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:3.5mm">
+    <h2><span class="n">🧾</span>Części z Twoich zamówień: do czego która</h2>
+    <table>
+      <tr><td style="width:36%"><b>Mean Well GST60A12</b> + kabel IEC C13</td><td>zasilacz 12 V 5 A dla całości (Arduino + lampki)</td></tr>
+      <tr><td><b>Gniazdo DC</b> z przewodem</td><td>wejście zasilacza do skrzynki (montaż w obudowie)</td></tr>
+      <tr><td><b>Wtyczki DC męskie</b> (5 szt.)</td><td>zasilanie Arduino z WAGO (1 szt.), reszta zapas</td></tr>
+      <tr><td><b>Bezpiecznik 1 A</b> + gniazdo nożowe</td><td>ochrona w przewodzie +12 V (dla lampek LED)</td></tr>
+      <tr><td><b>WAGO 221-415</b> (10 szt.)</td><td>rozdział +12 V i GND (2 szt.), reszta na łańcuszki i zapas</td></tr>
+      <tr><td><b>ULN2803A</b> ×2 + <b>podstawki DIP-18</b></td><td>po jednym na gracza, w podstawkach (łatwa wymiana)</td></tr>
+      <tr><td><b>Płytka uniwersalna 12×18</b> + <b>ARK 2-pin</b></td><td>płytka sterownika lampek ze złączami śrubowymi</td></tr>
+      <tr><td><b>Nakładka śrubowa Mega</b></td><td>pewne połączenie przewodów z pinami D22–D53 i GND</td></tr>
+      <tr><td><b>Tuleje M3</b>, <b>rurka termokurczliwa</b></td><td>montaż płytek na dystansach, izolacja lutów i oznaczanie +</td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>Reflex Arcade · Schemat połączeń</span><span>3 / 3</span></div>
+</section>
+</body>
+</html>
